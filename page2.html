@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>עבודה לחופשת חנוכה - עמוד 2: חישוב זוויות</title>
+<style>
+  :root {
+    --bg: #0b1220;
+    --ink: #e5e7eb;
+    --panel: #0f172a;
+    --border: #1f2937;
+    --purple: #a78bfa;
+    --green: #4ade80;
+    --orange: #f59e0b;
+    --teal: #2dd4bf;
+    --pink: #f472b6;
+    --blue: #60a5fa;
+    --yellow: #fde047;
+    --red: #ef4444;
+    --lime: #a3e635;
+    --cyan: #22d3ee;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-size: 22px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .greeting {
+    text-align: center;
+    font-size: 32px;
+    color: var(--teal);
+    margin-bottom: 25px;
+  }
+
+  .main-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 25px;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .nav-bar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .nav-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .nav-dot.active { background: var(--purple); transform: scale(1.1); }
+  .nav-dot.done { background: var(--green); }
+
+  .svg-container {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0 25px 0;
+  }
+
+  .stage {
+    background: #080d16;
+    border-radius: 16px;
+  }
+
+  .shape-line {
+    stroke: var(--ink);
+    stroke-width: 3;
+    fill: none;
+  }
+
+  .dashed-line {
+    stroke: var(--ink);
+    stroke-width: 2;
+    stroke-dasharray: 8,4;
+    fill: none;
+  }
+
+  .vertex-label {
+    fill: var(--teal);
+    font-size: 24px;
+    font-weight: bold;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .angle-label {
+    font-size: 18px;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .angle-arc {
+    stroke-width: 2;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .highlight {
+    animation: pulse 1.2s ease-in-out 5;
+  }
+
+  .section-header {
+    font-size: 26px;
+    color: var(--teal);
+    margin: 20px 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .given-box {
+    background: rgba(167, 139, 250, 0.1);
+    border: 2px solid var(--purple);
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    font-size: 22px;
+  }
+
+  .given-item { margin: 6px 0; }
+
+  .math-expr {
+    direction: ltr;
+    display: inline;
+    unicode-bidi: embed;
+    font-family: 'Times New Roman', serif;
+    font-size: 24px;
+  }
+
+  .question-box {
+    font-size: 24px;
+    text-align: center;
+    margin: 18px 0;
+    color: var(--orange);
+  }
+
+  .question-text {
+    font-size: 36px;
+    text-align: center;
+    margin: 12px 0;
+    direction: ltr;
+    color: var(--yellow);
+    font-family: 'Times New Roman', serif;
+  }
+
+  .answers {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+
+  .answer-btn {
+    background: #0b1424;
+    border: 3px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    color: var(--ink);
+    font-size: 26px;
+    cursor: pointer;
+    transition: all 0.2s;
+    direction: ltr;
+    font-family: 'Times New Roman', serif;
+  }
+
+  .answer-btn:hover {
+    border-color: var(--purple);
+    background: rgba(167, 139, 250, 0.15);
+    transform: scale(1.02);
+  }
+
+  .answer-btn.correct {
+    border-color: var(--green);
+    background: rgba(74, 222, 128, 0.3);
+  }
+
+  .answer-btn.wrong {
+    border-color: var(--red);
+    background: rgba(239, 68, 68, 0.2);
+  }
+
+  .answer-btn:disabled { cursor: not-allowed; }
+
+  .celebration {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  .confetti {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 2px;
+    animation: fall 4s ease-out forwards;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(1080deg); opacity: 0; }
+  }
+
+  .success-msg {
+    text-align: center;
+    font-size: 32px;
+    color: var(--green);
+    margin: 20px 0;
+    display: none;
+  }
+
+  .success-msg.show {
+    display: block;
+    animation: pop 0.5s ease-out;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+
+  .feedback {
+    text-align: center;
+    font-size: 20px;
+    color: var(--red);
+    margin: 15px 0;
+    display: none;
+    padding: 12px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+  }
+
+  .feedback.show { display: block; }
+
+  .explanation {
+    background: rgba(74, 222, 128, 0.1);
+    border: 2px solid var(--green);
+    border-radius: 12px;
+    padding: 15px;
+    margin: 15px 0;
+    font-size: 20px;
+    display: none;
+  }
+
+  .explanation.show {
+    display: block;
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .continue-btn, .next-btn {
+    display: none;
+    margin: 20px auto;
+    padding: 14px 40px;
+    font-size: 24px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+  }
+
+  .continue-btn { background: var(--purple); }
+  .continue-btn:hover { background: #8b5cf6; }
+  .next-btn { background: var(--teal); }
+  .next-btn:hover { background: #14b8a6; }
+  .continue-btn.show, .next-btn.show { display: block; }
+
+  .final-success {
+    text-align: center;
+    padding: 30px;
+  }
+
+  .final-success h2 {
+    font-size: 38px;
+    color: var(--green);
+    margin-bottom: 15px;
+  }
+
+  .final-success p {
+    font-size: 24px;
+    margin: 12px 0;
+  }
+
+  .summary-box {
+    background: rgba(167, 139, 250, 0.1);
+    border: 2px solid var(--purple);
+    border-radius: 12px;
+    padding: 18px;
+    margin: 18px auto;
+    max-width: 600px;
+    text-align: right;
+  }
+
+  .summary-item {
+    margin: 8px 0;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="greeting">חישוב זוויות - עמוד 2</div>
+
+  <div class="main-card">
+    <div class="nav-bar">
+      <div class="nav-dot active" id="nav1" onclick="goToExercise(1)">1</div>
+      <div class="nav-dot" id="nav2" onclick="goToExercise(2)">2</div>
+      <div class="nav-dot" id="nav3" onclick="goToExercise(3)">3</div>
+      <div class="nav-dot" id="nav4" onclick="goToExercise(4)">4</div>
+    </div>
+
+    <!-- ==================== תרגיל 1 סעיף א ==================== -->
+    <div class="page active" id="ex1a">
+      <div class="section-header">תרגיל 1 - סעיף א'</div>
+      <div class="svg-container">
+        <svg class="stage" width="520" height="340" viewBox="0 0 520 340">
+          <!--
+            לפי PDF עמוד 2 תרגיל 1:
+            A למעלה באמצע, B-C-D-E על הבסיס משמאל לימין
+            קודקוד ימני של המשולש הוא בנקודה בין C ל-D (נקרא לה נקודה ימנית)
+            D על הבסיס מימין לקודקוד, קו AD מקווקו
+            זווית CDE=75° היא זווית חיצונית - בין קו AD לקו DE (לימין)
+          -->
+
+          <!-- הבסיס -->
+          <line class="shape-line" x1="50" y1="290" x2="490" y2="290"/>
+
+          <!-- צלעות המשולש: A-B שמאל, A-קודקוד ימני (בין C ל-D) -->
+          <line class="shape-line" x1="250" y1="50" x2="90" y2="290"/>
+          <line class="shape-line" x1="250" y1="50" x2="280" y2="290"/>
+
+          <!-- קרניים מחלקות מ-A ל-C -->
+          <line class="dashed-line" x1="250" y1="50" x2="160" y2="290"/>
+          <line class="dashed-line" x1="250" y1="50" x2="220" y2="290"/>
+
+          <!-- קו AD מקווקו - הקו שיוצר זווית 75° עם DE -->
+          <line class="dashed-line" x1="250" y1="50" x2="360" y2="290"/>
+
+          <!-- קשתות זוויות ב-A -->
+          <!-- זווית 3 (סגול) - בין AB לקרן 1 -->
+          <path class="angle-arc" d="M 250 50 L 218 88 A 45 45 0 0 0 228 93 Z"
+                fill="rgba(167,139,250,0.5)" stroke="#a78bfa" stroke-width="2"/>
+          <!-- זווית 2 (ירוק) - בין קרן 1 לקרן 2 -->
+          <path class="angle-arc" d="M 250 50 L 228 93 A 45 45 0 0 0 242 95 Z"
+                fill="rgba(74,222,128,0.5)" stroke="#4ade80" stroke-width="2"/>
+          <!-- זווית 1 (כתום) - בין קרן 2 לצלע AC הימנית -->
+          <path class="angle-arc" d="M 250 50 L 242 95 A 45 45 0 0 0 258 92 Z"
+                fill="rgba(245,158,11,0.5)" stroke="#f59e0b" stroke-width="2"/>
+
+          <!-- זווית 75° ב-D - זווית חיצונית בין קו AD לקו DE -->
+          <!-- D ב-(360, 290), קו AD הולך למעלה-שמאלה, קו DE הולך ימינה -->
+          <!-- הזווית היא מימין ל-D, בין הקווים -->
+          <path class="angle-arc highlight" d="M 360 290 L 395 290 A 35 35 0 0 0 372 258 Z"
+                fill="rgba(34,211,238,0.5)" stroke="#22d3ee" stroke-width="2.5"/>
+
+          <!-- תוויות -->
+          <text class="vertex-label" x="242" y="38">A</text>
+          <text class="vertex-label" x="72" y="310">B</text>
+          <text class="vertex-label" x="152" y="310">C</text>
+          <text class="vertex-label" x="352" y="310">D</text>
+          <text class="vertex-label" x="470" y="310">E</text>
+
+          <text class="angle-label" fill="#a78bfa" x="205" y="80">3</text>
+          <text class="angle-label" fill="#4ade80" x="225" y="88">2</text>
+          <text class="angle-label" fill="#f59e0b" x="250" y="88">1</text>
+          <text class="angle-label" fill="#22d3ee" x="378" y="272">75°</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>נתון:</strong> <span class="math-expr">∠A₁ = ∠A₂ = ∠A₃ = 20°</span></div>
+        <div class="given-item"><span class="math-expr">∠CDE = 75°</span> (זווית חיצונית)</div>
+        <div class="given-item">היעזרו בנתונים שבשרטוט וחשבו את הזוויות:</div>
+      </div>
+
+      <div class="question-box">א. חשבו:</div>
+      <div class="question-text">∠ADE = ?</div>
+
+      <div class="answers" id="answers-ex1a">
+        <button class="answer-btn" onclick="checkAnswer('ex1a', this, false)">75°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex1a', this, true)">105°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex1a', this, false)">85°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex1a', this, false)">115°</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex1a">רמז: ∠ADE ו-∠CDE הן זוויות סמוכות על ישר. סכומן 180°</div>
+      <div class="success-msg" id="success-ex1a">נכון!</div>
+      <div class="explanation" id="explanation-ex1a">
+        <strong>פתרון:</strong><br>
+        <span class="math-expr">∠ADE + ∠CDE = 180°</span> (זוויות סמוכות)<br>
+        <span class="math-expr">∠ADE + 75° = 180°</span><br>
+        <span class="math-expr">∠ADE = 105°</span>
+      </div>
+      <button class="continue-btn" id="continue-ex1a" onclick="showPage('ex1b')">לסעיף ב'</button>
+    </div>
+
+    <!-- ==================== תרגיל 1 סעיף ב ==================== -->
+    <div class="page" id="ex1b">
+      <div class="section-header">תרגיל 1 - סעיף ב'</div>
+      <div class="svg-container">
+        <svg class="stage" width="520" height="340" viewBox="0 0 520 340">
+          <line class="shape-line" x1="50" y1="290" x2="490" y2="290"/>
+          <line class="shape-line" x1="250" y1="50" x2="90" y2="290"/>
+          <line class="shape-line" x1="250" y1="50" x2="280" y2="290"/>
+          <line class="dashed-line" x1="250" y1="50" x2="160" y2="290"/>
+          <line class="dashed-line" x1="250" y1="50" x2="220" y2="290"/>
+          <line class="dashed-line" x1="250" y1="50" x2="360" y2="290"/>
+
+          <!-- זווית ACD מודגשת - ב-C, בין קו CA לכיוון D -->
+          <path class="angle-arc highlight" d="M 160 290 L 160 255 A 35 35 0 0 1 195 290 Z"
+                fill="rgba(253,224,71,0.5)" stroke="#fde047" stroke-width="2.5"/>
+
+          <!-- זווית 75° -->
+          <path class="angle-arc" d="M 360 290 L 395 290 A 35 35 0 0 0 372 258 Z"
+                fill="rgba(34,211,238,0.3)" stroke="#22d3ee"/>
+
+          <text class="vertex-label" x="242" y="38">A</text>
+          <text class="vertex-label" x="72" y="310">B</text>
+          <text class="vertex-label" x="152" y="310">C</text>
+          <text class="vertex-label" x="352" y="310">D</text>
+          <text class="vertex-label" x="470" y="310">E</text>
+          <text class="angle-label" fill="#22d3ee" x="378" y="272">75°</text>
+          <text class="angle-label" fill="#fde047" x="172" y="275">?</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>נתון:</strong> <span class="math-expr">∠CAD = 20°</span> (הזווית המסומנת "1")</div>
+        <div class="given-item"><span class="math-expr">∠CDE = 75°</span> זווית חיצונית של △ACD</div>
+      </div>
+
+      <div class="question-box">ב. חשבו:</div>
+      <div class="question-text">∠ACD = ?</div>
+
+      <div class="answers" id="answers-ex1b">
+        <button class="answer-btn" onclick="checkAnswer('ex1b', this, false)">45°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex1b', this, true)">55°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex1b', this, false)">65°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex1b', this, false)">35°</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex1b">רמז: משפט הזווית החיצונית - זווית חיצונית = סכום 2 הזוויות הפנימיות שלא צמודות לה</div>
+      <div class="success-msg" id="success-ex1b">מצוין!</div>
+      <div class="explanation" id="explanation-ex1b">
+        <strong>משפט הזווית החיצונית:</strong><br>
+        <span class="math-expr">∠CDE = ∠CAD + ∠ACD</span><br>
+        <span class="math-expr">75° = 20° + ∠ACD</span><br>
+        <span class="math-expr">∠ACD = 55°</span>
+      </div>
+      <button class="continue-btn" id="continue-ex1b" onclick="showPage('ex1c')">לסעיף ג'</button>
+    </div>
+
+    <!-- ==================== תרגיל 1 סעיף ג ==================== -->
+    <div class="page" id="ex1c">
+      <div class="section-header">תרגיל 1 - סעיף ג'</div>
+      <div class="svg-container">
+        <svg class="stage" width="520" height="340" viewBox="0 0 520 340">
+          <line class="shape-line" x1="50" y1="290" x2="490" y2="290"/>
+          <line class="shape-line" x1="250" y1="50" x2="90" y2="290"/>
+          <line class="shape-line" x1="250" y1="50" x2="280" y2="290"/>
+          <line class="dashed-line" x1="250" y1="50" x2="160" y2="290"/>
+          <line class="dashed-line" x1="250" y1="50" x2="220" y2="290"/>
+          <line class="dashed-line" x1="250" y1="50" x2="360" y2="290"/>
+
+          <!-- זווית B מודגשת - ב-B בין BA ל-BC -->
+          <path class="angle-arc highlight" d="M 90 290 L 130 290 A 40 40 0 0 0 118 258 Z"
+                fill="rgba(253,224,71,0.5)" stroke="#fde047" stroke-width="2.5"/>
+
+          <!-- זווית A כולה (60°) -->
+          <path class="angle-arc" d="M 250 50 L 218 88 A 45 45 0 0 0 258 92 Z"
+                fill="rgba(167,139,250,0.3)" stroke="#a78bfa"/>
+
+          <text class="vertex-label" x="242" y="38">A</text>
+          <text class="vertex-label" x="72" y="310">B</text>
+          <text class="vertex-label" x="152" y="310">C</text>
+          <text class="vertex-label" x="352" y="310">D</text>
+          <text class="vertex-label" x="470" y="310">E</text>
+          <text class="angle-label" fill="#a78bfa" x="232" y="100">60°</text>
+          <text class="angle-label" fill="#fde047" x="115" y="275">?</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>ידוע:</strong> <span class="math-expr">∠BAC = 60°</span> (שלוש פעמים 20°)</div>
+        <div class="given-item"><span class="math-expr">∠ACB = 55°</span></div>
+      </div>
+
+      <div class="question-box">ג. חשבו:</div>
+      <div class="question-text">∠ABC = ?</div>
+
+      <div class="answers" id="answers-ex1c">
+        <button class="answer-btn" onclick="checkAnswer('ex1c', this, true)">65°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex1c', this, false)">55°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex1c', this, false)">75°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex1c', this, false)">60°</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex1c">רמז: סכום זוויות במשולש = 180°</div>
+      <div class="success-msg" id="success-ex1c">יופי!</div>
+      <div class="explanation" id="explanation-ex1c">
+        <strong>סכום זוויות במשולש:</strong><br>
+        <span class="math-expr">∠BAC + ∠ABC + ∠ACB = 180°</span><br>
+        <span class="math-expr">60° + ∠ABC + 55° = 180°</span><br>
+        <span class="math-expr">∠ABC = 65°</span>
+      </div>
+      <button class="continue-btn" id="continue-ex1c" onclick="completeExercise(1); showPage('ex2a')">לתרגיל 2</button>
+    </div>
+
+    <!-- ==================== תרגיל 2 סעיף א ==================== -->
+    <div class="page" id="ex2a">
+      <div class="section-header">תרגיל 2 - סעיף א'</div>
+      <div class="svg-container">
+        <svg class="stage" width="500" height="360" viewBox="0 0 500 360">
+          <!-- משולש ABC -->
+          <line class="shape-line" x1="220" y1="50" x2="50" y2="310"/>
+          <line class="shape-line" x1="220" y1="50" x2="450" y2="310"/>
+          <line class="shape-line" x1="50" y1="310" x2="450" y2="310"/>
+
+          <!-- קו AD -->
+          <line class="dashed-line" x1="220" y1="50" x2="220" y2="310"/>
+          <!-- קו BE -->
+          <line class="dashed-line" x1="50" y1="310" x2="350" y2="160"/>
+
+          <!-- זווית A (50°) -->
+          <path class="angle-arc" d="M 220 50 L 180 100 A 55 55 0 0 1 260 100 Z"
+                fill="rgba(253,224,71,0.35)" stroke="#fde047"/>
+
+          <!-- זווית ב-D (70°) + סימון זווית ישרה -->
+          <path class="angle-arc highlight" d="M 220 310 L 255 310 A 35 35 0 0 0 220 275 Z"
+                fill="rgba(34,211,238,0.4)" stroke="#22d3ee" stroke-width="2"/>
+          <rect x="220" y="295" width="12" height="12" fill="none" stroke="#22d3ee" stroke-width="1.5"/>
+
+          <!-- נקודת F -->
+          <circle cx="195" cy="215" r="5" fill="#a78bfa"/>
+
+          <text class="vertex-label" x="212" y="38">A</text>
+          <text class="vertex-label" x="25" y="320">B</text>
+          <text class="vertex-label" x="455" y="320">C</text>
+          <text class="vertex-label" x="212" y="340">D</text>
+          <text class="vertex-label" x="355" y="155">E</text>
+          <text class="vertex-label" fill="#a78bfa" x="168" y="212">F</text>
+
+          <text class="angle-label" fill="#fde047" x="200" y="100">50°</text>
+          <text class="angle-label" fill="#22d3ee" x="240" y="295">70°</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>נתון:</strong> <span class="math-expr">∠A = 50°</span>, <span class="math-expr">∠BDC = 70°</span></div>
+        <div class="given-item">AD חוצה את זווית A</div>
+      </div>
+
+      <div class="question-box">א. חשבו:</div>
+      <div class="question-text">∠CAD = ?</div>
+
+      <div class="answers" id="answers-ex2a">
+        <button class="answer-btn" onclick="checkAnswer('ex2a', this, true)">25°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2a', this, false)">50°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2a', this, false)">30°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2a', this, false)">20°</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex2a">רמז: AD חוצה את זווית A</div>
+      <div class="success-msg" id="success-ex2a">נכון!</div>
+      <div class="explanation" id="explanation-ex2a">
+        AD חוצה את ∠A:<br>
+        <span class="math-expr">∠CAD = ∠A ÷ 2 = 50° ÷ 2 = 25°</span>
+      </div>
+      <button class="continue-btn" id="continue-ex2a" onclick="showPage('ex2b')">לסעיף ב'</button>
+    </div>
+
+    <!-- ==================== תרגיל 2 סעיף ב ==================== -->
+    <div class="page" id="ex2b">
+      <div class="section-header">תרגיל 2 - סעיף ב'</div>
+      <div class="svg-container">
+        <svg class="stage" width="500" height="360" viewBox="0 0 500 360">
+          <line class="shape-line" x1="220" y1="50" x2="50" y2="310"/>
+          <line class="shape-line" x1="220" y1="50" x2="450" y2="310"/>
+          <line class="shape-line" x1="50" y1="310" x2="450" y2="310"/>
+          <line class="dashed-line" x1="220" y1="50" x2="220" y2="310"/>
+          <line class="dashed-line" x1="50" y1="310" x2="350" y2="160"/>
+
+          <!-- הדגשת זווית ABE -->
+          <path class="angle-arc highlight" d="M 50 310 L 92 270 A 48 48 0 0 1 98 310 Z"
+                fill="rgba(253,224,71,0.5)" stroke="#fde047" stroke-width="2.5"/>
+
+          <circle cx="195" cy="215" r="5" fill="#a78bfa"/>
+
+          <text class="vertex-label" x="212" y="38">A</text>
+          <text class="vertex-label" x="25" y="320">B</text>
+          <text class="vertex-label" x="455" y="320">C</text>
+          <text class="vertex-label" x="212" y="340">D</text>
+          <text class="vertex-label" x="355" y="155">E</text>
+          <text class="vertex-label" fill="#a78bfa" x="168" y="212">F</text>
+          <text class="angle-label" fill="#fde047" x="85" y="292">?</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>נתון:</strong> <span class="math-expr">∠A = 50°</span>, <span class="math-expr">∠BDC = 70°</span></div>
+      </div>
+
+      <div class="question-box">ב. חשבו:</div>
+      <div class="question-text">∠ABE = ?</div>
+
+      <div class="answers" id="answers-ex2b">
+        <button class="answer-btn" onclick="checkAnswer('ex2b', this, true)">60°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2b', this, false)">55°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2b', this, false)">65°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2b', this, false)">70°</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex2b">רמז: סכום זוויות במשולש ABD</div>
+      <div class="success-msg" id="success-ex2b">מעולה!</div>
+      <div class="explanation" id="explanation-ex2b">
+        במשולש ABD:<br>
+        <span class="math-expr">∠ADB = 180° - 70° = 110°</span><br>
+        <span class="math-expr">∠ABD + 25° + 110° = 180°</span><br>
+        <span class="math-expr">∠ABE = 60°</span>
+      </div>
+      <button class="continue-btn" id="continue-ex2b" onclick="showPage('ex2c')">לסעיף ג'</button>
+    </div>
+
+    <!-- ==================== תרגיל 2 סעיף ג ==================== -->
+    <div class="page" id="ex2c">
+      <div class="section-header">תרגיל 2 - סעיף ג'</div>
+      <div class="svg-container">
+        <svg class="stage" width="500" height="360" viewBox="0 0 500 360">
+          <line class="shape-line" x1="220" y1="50" x2="50" y2="310"/>
+          <line class="shape-line" x1="220" y1="50" x2="450" y2="310"/>
+          <line class="shape-line" x1="50" y1="310" x2="450" y2="310"/>
+          <line class="dashed-line" x1="220" y1="50" x2="220" y2="310"/>
+          <line class="dashed-line" x1="50" y1="310" x2="350" y2="160"/>
+
+          <!-- הדגשת זווית BFD -->
+          <path class="angle-arc highlight" d="M 195 215 L 168 188 A 30 30 0 0 1 195 185 Z"
+                fill="rgba(253,224,71,0.5)" stroke="#fde047" stroke-width="2.5"/>
+
+          <circle cx="195" cy="215" r="6" fill="#fde047"/>
+
+          <text class="vertex-label" x="212" y="38">A</text>
+          <text class="vertex-label" x="25" y="320">B</text>
+          <text class="vertex-label" x="455" y="320">C</text>
+          <text class="vertex-label" x="212" y="340">D</text>
+          <text class="vertex-label" x="355" y="155">E</text>
+          <text class="vertex-label" fill="#fde047" x="168" y="208">F</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>F</strong> היא נקודת החיתוך של AD ו-BE</div>
+      </div>
+
+      <div class="question-box">ג. חשבו:</div>
+      <div class="question-text">∠BFD = ?</div>
+
+      <div class="answers" id="answers-ex2c">
+        <button class="answer-btn" onclick="checkAnswer('ex2c', this, false)">100°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2c', this, true)">110°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2c', this, false)">95°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2c', this, false)">120°</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex2c">רמז: סכום זוויות במשולש BFD</div>
+      <div class="success-msg" id="success-ex2c">יופי!</div>
+      <div class="explanation" id="explanation-ex2c">
+        במשולש BFD:<br>
+        <span class="math-expr">∠FBD + ∠FDB + ∠BFD = 180°</span><br>
+        <span class="math-expr">∠BFD = 110°</span>
+      </div>
+      <button class="continue-btn" id="continue-ex2c" onclick="showPage('ex2d')">לסעיף ד'</button>
+    </div>
+
+    <!-- ==================== תרגיל 2 סעיף ד ==================== -->
+    <div class="page" id="ex2d">
+      <div class="section-header">תרגיל 2 - סעיף ד'</div>
+      <div class="svg-container">
+        <svg class="stage" width="500" height="360" viewBox="0 0 500 360">
+          <line class="shape-line" x1="220" y1="50" x2="50" y2="310"/>
+          <line class="shape-line" x1="220" y1="50" x2="450" y2="310"/>
+          <line class="shape-line" x1="50" y1="310" x2="450" y2="310"/>
+          <line class="dashed-line" x1="220" y1="50" x2="220" y2="310"/>
+          <line class="dashed-line" x1="50" y1="310" x2="350" y2="160"/>
+
+          <!-- הדגשת זווית DFE -->
+          <path class="angle-arc highlight" d="M 195 215 L 220 240 A 30 30 0 0 1 220 215 Z"
+                fill="rgba(34,211,238,0.5)" stroke="#22d3ee" stroke-width="2.5"/>
+
+          <circle cx="195" cy="215" r="6" fill="#22d3ee"/>
+
+          <text class="vertex-label" x="212" y="38">A</text>
+          <text class="vertex-label" x="25" y="320">B</text>
+          <text class="vertex-label" x="455" y="320">C</text>
+          <text class="vertex-label" x="212" y="340">D</text>
+          <text class="vertex-label" x="355" y="155">E</text>
+          <text class="vertex-label" fill="#22d3ee" x="168" y="208">F</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>ידוע:</strong> <span class="math-expr">∠BFD = 110°</span></div>
+      </div>
+
+      <div class="question-box">ד. חשבו:</div>
+      <div class="question-text">∠DFE = ?</div>
+
+      <div class="answers" id="answers-ex2d">
+        <button class="answer-btn" onclick="checkAnswer('ex2d', this, true)">70°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2d', this, false)">110°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2d', this, false)">80°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex2d', this, false)">90°</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex2d">רמז: ∠BFD ו-∠DFE הן זוויות סמוכות</div>
+      <div class="success-msg" id="success-ex2d">נכון!</div>
+      <div class="explanation" id="explanation-ex2d">
+        <span class="math-expr">∠BFD + ∠DFE = 180°</span><br>
+        <span class="math-expr">110° + ∠DFE = 180°</span><br>
+        <span class="math-expr">∠DFE = 70°</span>
+      </div>
+      <button class="continue-btn" id="continue-ex2d" onclick="completeExercise(2); showPage('ex3a')">לתרגיל 3</button>
+    </div>
+
+    <!-- ==================== תרגיל 3 סעיף א ==================== -->
+    <div class="page" id="ex3a">
+      <div class="section-header">תרגיל 3 - משולש שווה-שוקיים - סעיף א'</div>
+      <div class="svg-container">
+        <svg class="stage" width="480" height="360" viewBox="0 0 480 360">
+          <!-- המשך BA מעל A (ל-D) -->
+          <line class="dashed-line" x1="150" y1="130" x2="110" y2="50"/>
+
+          <!-- צלעות המשולש -->
+          <line class="shape-line" x1="150" y1="130" x2="70" y2="310"/>
+          <line class="shape-line" x1="150" y1="130" x2="310" y2="310"/>
+          <line class="shape-line" x1="70" y1="310" x2="310" y2="310"/>
+
+          <!-- קו AK -->
+          <line class="shape-line" stroke="#4ade80" stroke-width="3" x1="150" y1="130" x2="420" y2="130"/>
+
+          <!-- סימוני צלעות שוות -->
+          <line x1="105" y1="210" x2="115" y2="225" stroke="#fde047" stroke-width="2.5"/>
+          <line x1="110" y1="210" x2="120" y2="225" stroke="#fde047" stroke-width="2.5"/>
+          <line x1="225" y1="210" x2="235" y2="225" stroke="#fde047" stroke-width="2.5"/>
+          <line x1="230" y1="210" x2="240" y2="225" stroke="#fde047" stroke-width="2.5"/>
+
+          <!-- זווית בסיס B (64°) -->
+          <path class="angle-arc" d="M 70 310 L 108 278 A 38 38 0 0 1 108 310 Z"
+                fill="rgba(34,211,238,0.4)" stroke="#22d3ee" stroke-width="2"/>
+
+          <!-- זווית בסיס C (64°) -->
+          <path class="angle-arc" d="M 310 310 L 272 310 A 38 38 0 0 1 280 278 Z"
+                fill="rgba(34,211,238,0.4)" stroke="#22d3ee" stroke-width="2"/>
+
+          <text class="vertex-label" x="100" y="45">D</text>
+          <text class="vertex-label" x="132" y="120">A</text>
+          <text class="vertex-label" x="45" y="325">B</text>
+          <text class="vertex-label" x="315" y="325">C</text>
+          <text class="vertex-label" fill="#4ade80" x="425" y="138">K</text>
+
+          <text class="angle-label" fill="#22d3ee" x="92" y="295">64°</text>
+          <text class="angle-label" fill="#22d3ee" x="275" y="295">64°</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>נתון:</strong> △ABC משולש שווה-שוקיים (AB = AC)</div>
+        <div class="given-item">גודל זווית בסיס של המשולש 64°</div>
+        <div class="given-item">AK חוצה את ∠DAC</div>
+      </div>
+
+      <div class="question-box">א. חשבו את גדלי כל הזוויות - מהי זווית הראש?</div>
+      <div class="question-text">∠BAC = ?</div>
+
+      <div class="answers" id="answers-ex3a">
+        <button class="answer-btn" onclick="checkAnswer('ex3a', this, true)">52°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex3a', this, false)">64°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex3a', this, false)">56°</button>
+        <button class="answer-btn" onclick="checkAnswer('ex3a', this, false)">48°</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex3a">רמז: סכום זוויות במשולש = 180°</div>
+      <div class="success-msg" id="success-ex3a">נכון!</div>
+      <div class="explanation" id="explanation-ex3a">
+        <span class="math-expr">∠BAC + 64° + 64° = 180°</span><br>
+        <span class="math-expr">∠BAC = 180° - 128° = 52°</span>
+      </div>
+      <button class="continue-btn" id="continue-ex3a" onclick="showPage('ex3b')">לסעיף ב'</button>
+    </div>
+
+    <!-- ==================== תרגיל 3 סעיף ב ==================== -->
+    <div class="page" id="ex3b">
+      <div class="section-header">תרגיל 3 - סעיף ב' - הוכחה</div>
+      <div class="svg-container">
+        <svg class="stage" width="480" height="360" viewBox="0 0 480 360">
+          <line class="dashed-line" x1="150" y1="130" x2="110" y2="50"/>
+          <line class="shape-line" x1="150" y1="130" x2="70" y2="310"/>
+          <line class="shape-line" x1="150" y1="130" x2="310" y2="310"/>
+
+          <!-- BC מודגש -->
+          <line class="shape-line" stroke="#4ade80" stroke-width="4" x1="70" y1="310" x2="310" y2="310"/>
+          <!-- AK מודגש -->
+          <line class="shape-line" stroke="#4ade80" stroke-width="4" x1="150" y1="130" x2="420" y2="130"/>
+
+          <!-- זווית KAC = 64° -->
+          <path class="angle-arc highlight" d="M 150 130 L 198 130 A 48 48 0 0 1 185 172 Z"
+                fill="rgba(74,222,128,0.5)" stroke="#4ade80" stroke-width="2.5"/>
+
+          <!-- זווית ACB = 64° -->
+          <path class="angle-arc highlight" d="M 310 310 L 262 310 A 48 48 0 0 1 276 268 Z"
+                fill="rgba(74,222,128,0.5)" stroke="#4ade80" stroke-width="2.5"/>
+
+          <text class="vertex-label" x="100" y="45">D</text>
+          <text class="vertex-label" x="132" y="120">A</text>
+          <text class="vertex-label" x="45" y="325">B</text>
+          <text class="vertex-label" x="315" y="325">C</text>
+          <text class="vertex-label" fill="#4ade80" x="425" y="138">K</text>
+
+          <text class="angle-label" fill="#4ade80" x="188" y="152">64°</text>
+          <text class="angle-label" fill="#4ade80" x="268" y="295">64°</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>ידוע:</strong></div>
+        <div class="given-item"><span class="math-expr">∠DAC = 180° - 52° = 128°</span></div>
+        <div class="given-item"><span class="math-expr">∠KAC = 128° ÷ 2 = 64°</span> (AK חוצה)</div>
+        <div class="given-item"><span class="math-expr">∠ACB = 64°</span></div>
+      </div>
+
+      <div class="question-box">ב. מדוע BC || AK?</div>
+
+      <div class="answers" id="answers-ex3b">
+        <button class="answer-btn" onclick="checkAnswer('ex3b', this, true)">זוויות מתחלפות שוות</button>
+        <button class="answer-btn" onclick="checkAnswer('ex3b', this, false)">זוויות צמודות</button>
+        <button class="answer-btn" onclick="checkAnswer('ex3b', this, false)">זוויות קודקודיות</button>
+        <button class="answer-btn" onclick="checkAnswer('ex3b', this, false)">זוויות מתאימות</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex3b">רמז: ∠KAC ו-∠ACB נמצאות בצדדים מנוגדים של AC</div>
+      <div class="success-msg" id="success-ex3b">מצוין!</div>
+      <div class="explanation" id="explanation-ex3b">
+        <span class="math-expr">∠KAC = ∠ACB = 64°</span><br>
+        אלו <strong>זוויות מתחלפות</strong> שוות ביחס לחוצה AC.<br>
+        לכן: <strong style="color: var(--green);">BC || AK</strong>
+      </div>
+      <button class="continue-btn" id="continue-ex3b" onclick="completeExercise(3); showPage('ex4a')">לתרגיל 4</button>
+    </div>
+
+    <!-- ==================== תרגיל 4 ==================== -->
+    <div class="page" id="ex4a">
+      <div class="section-header">תרגיל 4 - מצא את זוגות הישרים המקבילים</div>
+      <div class="svg-container">
+        <svg class="stage" width="460" height="400" viewBox="0 0 460 400">
+          <!-- ישר a -->
+          <line class="shape-line" x1="200" y1="50" x2="420" y2="50"/>
+          <text class="vertex-label" style="font-style: italic" x="428" y="55">a</text>
+
+          <!-- ישר b -->
+          <line class="shape-line" x1="180" y1="100" x2="420" y2="100"/>
+          <text class="vertex-label" style="font-style: italic" x="428" y="105">b</text>
+
+          <!-- ישר d -->
+          <line class="shape-line" x1="40" y1="190" x2="200" y2="190"/>
+          <text class="vertex-label" style="font-style: italic" x="208" y="195">d</text>
+
+          <!-- ישר c -->
+          <line class="shape-line" x1="200" y1="260" x2="420" y2="260"/>
+          <text class="vertex-label" style="font-style: italic" x="428" y="265">c</text>
+
+          <!-- ישר e -->
+          <line class="shape-line" x1="100" y1="320" x2="250" y2="320"/>
+          <text class="vertex-label" style="font-style: italic" x="258" y="325">e</text>
+
+          <!-- ישר f -->
+          <line class="shape-line" x1="40" y1="360" x2="180" y2="360"/>
+          <text class="vertex-label" style="font-style: italic" x="188" y="365">f</text>
+
+          <!-- קווים חותכים -->
+          <line class="shape-line" stroke="#a78bfa" stroke-width="2" x1="250" y1="30" x2="180" y2="120"/>
+          <line class="shape-line" stroke="#a78bfa" stroke-width="2" x1="100" y1="170" x2="60" y2="380"/>
+          <line class="shape-line" stroke="#a78bfa" stroke-width="2" x1="270" y1="240" x2="230" y2="280"/>
+
+          <!-- תוויות זוויות -->
+          <text class="angle-label" fill="#fde047" x="232" y="45">70°</text>
+          <text class="angle-label" fill="#f59e0b" x="195" y="95">120°</text>
+          <text class="angle-label" fill="#4ade80" x="85" y="185">110°</text>
+          <text class="angle-label" fill="#4ade80" x="245" y="255">110°</text>
+          <text class="angle-label" fill="#fde047" x="65" y="355">70°</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>נתון:</strong> זוויות כמסומן בשרטוט</div>
+      </div>
+
+      <div class="question-box">מצא זוגות ישרים מקבילים ונמק:</div>
+
+      <div class="answers" id="answers-ex4a">
+        <button class="answer-btn" onclick="checkAnswer('ex4a', this, true)">c || d (110°=110°)</button>
+        <button class="answer-btn" onclick="checkAnswer('ex4a', this, false)">a || b</button>
+        <button class="answer-btn" onclick="checkAnswer('ex4a', this, false)">b || c</button>
+        <button class="answer-btn" onclick="checkAnswer('ex4a', this, false)">d || e</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex4a">רמז: חפש זוויות מתאימות שוות</div>
+      <div class="success-msg" id="success-ex4a">נכון!</div>
+      <div class="explanation" id="explanation-ex4a">
+        <strong>c || d</strong> כי שתיהן יוצרות זווית 110°
+      </div>
+      <button class="continue-btn" id="continue-ex4a" onclick="showPage('ex4b')">עוד זוג</button>
+    </div>
+
+    <!-- ==================== תרגיל 4 המשך ==================== -->
+    <div class="page" id="ex4b">
+      <div class="section-header">תרגיל 4 - עוד זוג מקביל</div>
+      <div class="svg-container">
+        <svg class="stage" width="460" height="400" viewBox="0 0 460 400">
+          <!-- a מודגש -->
+          <line class="shape-line" stroke="#fde047" stroke-width="4" x1="200" y1="50" x2="420" y2="50"/>
+          <text class="vertex-label" style="font-style: italic" fill="#fde047" x="428" y="55">a</text>
+
+          <line class="shape-line" x1="180" y1="100" x2="420" y2="100"/>
+          <text class="vertex-label" style="font-style: italic" x="428" y="105">b</text>
+
+          <!-- d מודגש -->
+          <line class="shape-line" stroke="#4ade80" stroke-width="4" x1="40" y1="190" x2="200" y2="190"/>
+          <text class="vertex-label" style="font-style: italic" fill="#4ade80" x="208" y="195">d</text>
+
+          <!-- c מודגש -->
+          <line class="shape-line" stroke="#4ade80" stroke-width="4" x1="200" y1="260" x2="420" y2="260"/>
+          <text class="vertex-label" style="font-style: italic" fill="#4ade80" x="428" y="265">c</text>
+
+          <line class="shape-line" x1="100" y1="320" x2="250" y2="320"/>
+          <text class="vertex-label" style="font-style: italic" x="258" y="325">e</text>
+
+          <!-- f מודגש -->
+          <line class="shape-line" stroke="#fde047" stroke-width="4" x1="40" y1="360" x2="180" y2="360"/>
+          <text class="vertex-label" style="font-style: italic" fill="#fde047" x="188" y="365">f</text>
+
+          <line class="shape-line" stroke="#a78bfa" stroke-width="2" x1="250" y1="30" x2="180" y2="120"/>
+          <line class="shape-line" stroke="#a78bfa" stroke-width="2" x1="100" y1="170" x2="60" y2="380"/>
+          <line class="shape-line" stroke="#a78bfa" stroke-width="2" x1="270" y1="240" x2="230" y2="280"/>
+
+          <text class="angle-label" fill="#fde047" x="232" y="45">70°</text>
+          <text class="angle-label" fill="#f59e0b" x="195" y="95">120°</text>
+          <text class="angle-label" fill="#4ade80" x="85" y="185">110°</text>
+          <text class="angle-label" fill="#4ade80" x="245" y="255">110°</text>
+          <text class="angle-label" fill="#fde047" x="65" y="355">70°</text>
+        </svg>
+      </div>
+
+      <div class="given-box">
+        <div><strong>מצאנו:</strong> c || d (זוויות 110°)</div>
+      </div>
+
+      <div class="question-box">מצא עוד זוג מקביל:</div>
+
+      <div class="answers" id="answers-ex4b">
+        <button class="answer-btn" onclick="checkAnswer('ex4b', this, true)">a || f (70°=70°)</button>
+        <button class="answer-btn" onclick="checkAnswer('ex4b', this, false)">b || d</button>
+        <button class="answer-btn" onclick="checkAnswer('ex4b', this, false)">a || c</button>
+        <button class="answer-btn" onclick="checkAnswer('ex4b', this, false)">b || f</button>
+      </div>
+
+      <div class="feedback" id="feedback-ex4b">רמז: חפש זוויות 70° שוות</div>
+      <div class="success-msg" id="success-ex4b">מעולה!</div>
+      <div class="explanation" id="explanation-ex4b">
+        <strong>a || f</strong> כי שתיהן יוצרות זווית 70°<br><br>
+        <strong>סיכום:</strong> c || d, a || f
+      </div>
+      <button class="continue-btn" id="continue-ex4b" onclick="completeExercise(4); showPage('final')">סיום</button>
+    </div>
+
+    <!-- ==================== סיום ==================== -->
+    <div class="page" id="final">
+      <div class="final-success">
+        <h2>כל הכבוד!</h2>
+        <p>סיימת את כל התרגילים!</p>
+        <div class="summary-box">
+          <div style="text-align: center; margin-bottom: 12px; color: var(--teal); font-size: 24px;">תשובות:</div>
+          <div class="summary-item"><strong style="color: var(--yellow);">תרגיל 1:</strong> א. 105° | ב. 55° | ג. 65°</div>
+          <div class="summary-item"><strong style="color: var(--green);">תרגיל 2:</strong> א. 25° | ב. 60° | ג. 110° | ד. 70°</div>
+          <div class="summary-item"><strong style="color: var(--orange);">תרגיל 3:</strong> ∠BAC=52° | BC||AK</div>
+          <div class="summary-item"><strong style="color: var(--teal);">תרגיל 4:</strong> c||d, a||f</div>
+        </div>
+        <button class="next-btn show" onclick="location.reload()" style="margin-top: 25px;">להתחיל מחדש</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="celebration" id="celebration"></div>
+
+<script>
+let answered = {};
+let completed = { 1: false, 2: false, 3: false, 4: false };
+
+function checkAnswer(section, btn, isCorrect) {
+  if (answered[section]) return;
+  if (isCorrect) {
+    answered[section] = true;
+    btn.classList.add('correct');
+    document.querySelectorAll(`#answers-${section} .answer-btn`).forEach(b => b.disabled = true);
+    const fb = document.getElementById(`feedback-${section}`);
+    if (fb) fb.classList.remove('show');
+    const sc = document.getElementById(`success-${section}`);
+    if (sc) sc.classList.add('show');
+    createConfetti();
+    setTimeout(() => {
+      const ex = document.getElementById(`explanation-${section}`);
+      if (ex) ex.classList.add('show');
+    }, 1000);
+    setTimeout(() => {
+      const ct = document.getElementById(`continue-${section}`);
+      if (ct) ct.classList.add('show');
+    }, 1800);
+  } else {
+    btn.classList.add('wrong');
+    const fb = document.getElementById(`feedback-${section}`);
+    if (fb) fb.classList.add('show');
+    setTimeout(() => btn.classList.remove('wrong'), 1000);
+  }
+}
+
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  if (pageId === 'final') {
+    createConfetti();
+    setTimeout(createConfetti, 700);
+    setTimeout(createConfetti, 1400);
+  }
+}
+
+function completeExercise(num) {
+  completed[num] = true;
+  document.getElementById('nav' + num).classList.remove('active');
+  document.getElementById('nav' + num).classList.add('done');
+  if (num < 4) document.getElementById('nav' + (num + 1)).classList.add('active');
+}
+
+function goToExercise(num) {
+  const pages = { 1: 'ex1a', 2: 'ex2a', 3: 'ex3a', 4: 'ex4a' };
+  showPage(pages[num]);
+  for (let i = 1; i <= 4; i++) {
+    if (!completed[i]) document.getElementById('nav' + i).classList.remove('active');
+  }
+  if (!completed[num]) document.getElementById('nav' + num).classList.add('active');
+}
+
+function createConfetti() {
+  const c = document.getElementById('celebration');
+  const colors = ['#fde047', '#4ade80', '#2dd4bf', '#a3e635', '#22d3ee', '#f472b6', '#a78bfa'];
+  for (let i = 0; i < 50; i++) {
+    const d = document.createElement('div');
+    d.className = 'confetti';
+    d.style.left = Math.random() * 100 + '%';
+    d.style.background = colors[Math.floor(Math.random() * colors.length)];
+    d.style.animationDelay = Math.random() * 0.7 + 's';
+    c.appendChild(d);
+  }
+  setTimeout(() => { c.innerHTML = ''; }, 4000);
+}
+</script>
+
+</body>
+</html>
