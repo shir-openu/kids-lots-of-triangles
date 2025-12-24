@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>שאלה 4 - ישרים מקבילים</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #1a1a1a;
+    --panel: #f8f9fa;
+    --border: #dee2e6;
+    --purple: #7c3aed;
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --teal: #14b8a6;
+    --cyan: #06b6d4;
+    --yellow: #eab308;
+    --red: #ef4444;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-size: 20px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .title {
+    text-align: center;
+    font-size: 32px;
+    color: var(--ink);
+    margin-bottom: 25px;
+    text-decoration: underline;
+  }
+
+  .exercise {
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+
+  .exercise-title {
+    font-size: 24px;
+    color: var(--purple);
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+
+  .drawing-container {
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+    background: white;
+    border-radius: 12px;
+    padding: 10px;
+  }
+
+  .drawing-container img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .given-box {
+    background: rgba(124, 58, 237, 0.1);
+    border: 2px solid var(--purple);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin: 15px 0;
+    font-size: 18px;
+  }
+
+  .given-item {
+    margin: 8px 0;
+    padding: 5px 10px;
+    background: rgba(6, 182, 212, 0.1);
+    border-radius: 6px;
+    display: inline-block;
+    margin-left: 10px;
+  }
+
+  .questions-container {
+    margin-top: 20px;
+  }
+
+  .question-item {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+  }
+
+  .question-item.correct {
+    border-color: var(--green);
+    background: rgba(34, 197, 94, 0.1);
+  }
+
+  .question-item.hint {
+    border-color: var(--orange);
+    background: rgba(245, 158, 11, 0.05);
+  }
+
+  .question-label {
+    color: var(--purple);
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  .math-expr {
+    direction: ltr;
+    display: inline;
+    font-family: 'Times New Roman', serif;
+    font-size: 24px;
+  }
+
+  .answer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+  }
+
+  .answer-input {
+    width: 120px;
+    padding: 10px;
+    font-size: 20px;
+    text-align: center;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    color: var(--ink);
+  }
+
+  .answer-input:focus {
+    outline: none;
+    border-color: var(--cyan);
+  }
+
+  .answer-input.correct {
+    border-color: var(--green);
+    background: rgba(34, 197, 94, 0.15);
+  }
+
+  .answer-input.wrong {
+    border-color: var(--red);
+    animation: shake 0.3s;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  .check-btn {
+    padding: 10px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    background: var(--cyan);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  .check-btn:hover {
+    background: var(--teal);
+  }
+
+  .check-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  .hint-box {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(245, 158, 11, 0.15);
+    border: 2px solid var(--orange);
+    border-radius: 8px;
+    font-size: 16px;
+    color: #92400e;
+    display: none;
+    text-align: right;
+  }
+
+  .hint-box.show {
+    display: block;
+    animation: fadeIn 0.3s;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .success-msg {
+    color: var(--green);
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .success-msg.show {
+    display: block;
+  }
+
+  .explanation-box {
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 2px solid var(--green);
+    border-radius: 8px;
+    font-size: 16px;
+    color: #166534;
+    display: none;
+  }
+
+  .explanation-box.show {
+    display: block;
+    animation: fadeIn 0.3s;
+  }
+
+  .celebration {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  .confetti {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 2px;
+    animation: fall 3s ease-out forwards;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  .info-box {
+    background: rgba(6, 182, 212, 0.1);
+    border: 2px solid var(--cyan);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    font-size: 16px;
+  }
+
+  .info-box h4 {
+    margin: 0 0 10px 0;
+    color: var(--cyan);
+  }
+
+  .parallel-symbol {
+    font-size: 22px;
+    color: var(--purple);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title">ישרים מקבילים</div>
+
+  <div class="exercise">
+    <div class="exercise-title">שאלה 4 - מצאו את הישרים המקבילים</div>
+
+    <div class="drawing-container">
+      <img src="page_2_q_3_parallel.svg" alt="שרטוט ישרים מקבילים" style="max-height: 350px;">
+    </div>
+
+    <div class="given-box">
+      <div><strong>נתון - הזוויות המסומנות בשרטוט:</strong></div>
+      <div style="margin-top: 10px;">
+        <span class="given-item">ישר <b>a</b> עם חותך <b>e</b>: <span class="math-expr">70°</span></span>
+        <span class="given-item">ישר <b>c</b> עם חותך <b>e</b>: <span class="math-expr">110°</span></span>
+      </div>
+      <div>
+        <span class="given-item">ישר <b>d</b> עם חותך <b>f</b>: <span class="math-expr">110°</span></span>
+        <span class="given-item">ישר <b>c</b> עם חותך <b>f</b>: <span class="math-expr">70°</span></span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h4>תזכורת - מתי ישרים מקבילים?</h4>
+      <ul style="margin: 5px 20px;">
+        <li>זוויות חד-צדדיות פנימיות שסכומן <b>180°</b> → ישרים מקבילים</li>
+        <li>זוויות מתאימות שוות → ישרים מקבילים</li>
+        <li>זוויות מתחלפות שוות → ישרים מקבילים</li>
+      </ul>
+    </div>
+
+    <div class="questions-container">
+      <!-- שאלה א - ישרים אופקיים מקבילים -->
+      <div class="question-item" id="q1-item">
+        <div class="question-label">א. מצאו את הישרים האופקיים המקבילים:</div>
+        <p style="font-size: 16px; color: #666;">רמז: בדקו אילו ישרים יוצרים זוויות חד-צדדיות שסכומן 180°</p>
+
+        <div class="answer-row">
+          <span>הישרים המקבילים הם:</span>
+          <input type="text" class="answer-input" id="q1" placeholder="לדוגמה: a,c,d" style="width: 150px;">
+          <button class="check-btn" onclick="checkParallel('q1')">בדוק</button>
+        </div>
+
+        <div class="hint-box" id="hint-q1"></div>
+        <div class="success-msg" id="success-q1">✓ נכון!</div>
+        <div class="explanation-box" id="explain-q1">
+          <strong>הסבר:</strong><br>
+          • ישר <b>a</b> עם ישר <b>c</b>: <span class="math-expr">70° + 110° = 180°</span> → <b>a ∥ c</b><br>
+          • ישר <b>c</b> עם ישר <b>d</b>: <span class="math-expr">70° + 110° = 180°</span> → <b>c ∥ d</b><br>
+          • לכן: <b>a ∥ c ∥ d</b>
+        </div>
+      </div>
+
+      <!-- שאלה ב - ישרים אלכסוניים מקבילים -->
+      <div class="question-item" id="q2-item">
+        <div class="question-label">ב. מצאו את הישרים האלכסוניים (החותכים) המקבילים:</div>
+        <p style="font-size: 16px; color: #666;">רמז: בדקו את הזוויות שהישרים e ו-f יוצרים עם ישר c</p>
+
+        <div class="answer-row">
+          <span>הישרים המקבילים הם:</span>
+          <input type="text" class="answer-input" id="q2" placeholder="לדוגמה: e,f" style="width: 150px;">
+          <button class="check-btn" onclick="checkParallel('q2')">בדוק</button>
+        </div>
+
+        <div class="hint-box" id="hint-q2"></div>
+        <div class="success-msg" id="success-q2">✓ נכון!</div>
+        <div class="explanation-box" id="explain-q2">
+          <strong>הסבר:</strong><br>
+          • ישר <b>e</b> יוצר עם <b>c</b> זווית <span class="math-expr">110°</span><br>
+          • ישר <b>f</b> יוצר עם <b>c</b> זווית <span class="math-expr">70°</span><br>
+          • <span class="math-expr">110° + 70° = 180°</span> → <b>e ∥ f</b>
+        </div>
+      </div>
+
+      <!-- סיכום -->
+      <div class="question-item" id="summary-item" style="display: none;">
+        <div class="question-label" style="color: var(--green);">🎉 סיכום - כל הישרים המקבילים:</div>
+        <div style="font-size: 22px; text-align: center; padding: 20px;">
+          <span class="math-expr" style="font-size: 28px;">a ∥ c ∥ d</span>
+          <br><br>
+          <span class="math-expr" style="font-size: 28px;">e ∥ f</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="celebration" id="celebration"></div>
+
+<script>
+const hints = {
+  'q1': [
+    'בדקו: 70° + 110° = ?',
+    'אם הסכום הוא 180°, הישרים מקבילים!',
+    'הישרים a, c, d - בדקו את הזוויות ביניהם'
+  ],
+  'q2': [
+    'הסתכלו על הזוויות של e ו-f עם ישר c',
+    '110° + 70° = 180° - מה זה אומר?',
+    'e ו-f הם החותכים - האם הם מקבילים?'
+  ]
+};
+
+const answers = {
+  'q1': ['a,c,d', 'a, c, d', 'acd', 'a c d', 'd,c,a', 'd, c, a', 'c,a,d', 'a,d,c', 'c,d,a', 'd,a,c'],
+  'q2': ['e,f', 'e, f', 'ef', 'e f', 'f,e', 'f, e', 'fe', 'f e']
+};
+
+let attempts = {};
+let solved = { q1: false, q2: false };
+
+function normalizeAnswer(str) {
+  return str.toLowerCase().replace(/\s+/g, '').replace(/[||∥]/g, ',').split(',').sort().join(',');
+}
+
+function checkParallel(id) {
+  const input = document.getElementById(id);
+  const item = document.getElementById(id + '-item');
+  const hintBox = document.getElementById('hint-' + id);
+  const successMsg = document.getElementById('success-' + id);
+  const explainBox = document.getElementById('explain-' + id);
+  const value = input.value.trim().toLowerCase();
+
+  if (!attempts[id]) attempts[id] = 0;
+  attempts[id]++;
+
+  const normalized = normalizeAnswer(value);
+  const correctAnswers = answers[id].map(a => normalizeAnswer(a));
+
+  if (correctAnswers.includes(normalized)) {
+    input.classList.remove('wrong');
+    input.classList.add('correct');
+    item.classList.add('correct');
+    item.classList.remove('hint');
+    hintBox.classList.remove('show');
+    successMsg.classList.add('show');
+    explainBox.classList.add('show');
+    input.disabled = true;
+    item.querySelector('.check-btn').disabled = true;
+    solved[id] = true;
+    createConfetti();
+
+    // Check if both solved
+    if (solved.q1 && solved.q2) {
+      setTimeout(() => {
+        document.getElementById('summary-item').style.display = 'block';
+        createConfetti();
+      }, 1000);
+    }
+  } else {
+    input.classList.add('wrong');
+    item.classList.add('hint');
+    setTimeout(() => input.classList.remove('wrong'), 300);
+
+    const hintIndex = Math.min(attempts[id] - 1, hints[id].length - 1);
+    let hintText = '💡 רמז ' + attempts[id] + ': ' + hints[id][hintIndex];
+
+    if (attempts[id] >= 5) {
+      if (id === 'q1') {
+        hintText += '<br>🎯 התשובה: a, c, d';
+      } else {
+        hintText += '<br>🎯 התשובה: e, f';
+      }
+    }
+
+    hintBox.innerHTML = hintText;
+    hintBox.classList.add('show');
+
+    input.value = '';
+    input.focus();
+  }
+}
+
+function createConfetti() {
+  const c = document.getElementById('celebration');
+  const colors = ['#fde047', '#4ade80', '#2dd4bf', '#a3e635', '#22d3ee', '#f472b6', '#a78bfa'];
+  for (let i = 0; i < 40; i++) {
+    const d = document.createElement('div');
+    d.className = 'confetti';
+    d.style.left = Math.random() * 100 + '%';
+    d.style.background = colors[Math.floor(Math.random() * colors.length)];
+    d.style.animationDelay = Math.random() * 0.5 + 's';
+    c.appendChild(d);
+  }
+  setTimeout(() => { c.innerHTML = ''; }, 3000);
+}
+
+// Enter key support
+document.querySelectorAll('.answer-input').forEach(input => {
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      const btn = input.parentElement.querySelector('.check-btn');
+      if (!btn.disabled) btn.click();
+    }
+  });
+});
+</script>
+
+</body>
+</html>

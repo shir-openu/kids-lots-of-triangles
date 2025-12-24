@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עמוד 6 - שאלה מסכמת: הפונקציה הקווית</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #e94560;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #a8a8a8;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .graph-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        svg {
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a1a3a 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .questions-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .question-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .question-card:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
+        }
+
+        .question-title {
+            color: #e94560;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .question-text {
+            color: #ddd;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .option {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .option:hover {
+            background: rgba(233, 69, 96, 0.2);
+            border-color: #e94560;
+        }
+
+        .option.selected {
+            background: rgba(233, 69, 96, 0.3);
+            border-color: #e94560;
+        }
+
+        .option.correct {
+            background: rgba(46, 204, 113, 0.4);
+            border-color: #2ecc71;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .option.incorrect {
+            background: rgba(231, 76, 60, 0.4);
+            border-color: #e74c3c;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .true-false-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .statement {
+            color: #ddd;
+            margin-bottom: 12px;
+            font-size: 1.05em;
+        }
+
+        .tf-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .tf-btn {
+            flex: 1;
+            padding: 12px 25px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .tf-btn:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .tf-btn.selected {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.3);
+        }
+
+        .tf-btn.correct-answer {
+            background: rgba(46, 204, 113, 0.4);
+            border-color: #2ecc71;
+        }
+
+        .tf-btn.wrong-answer {
+            background: rgba(231, 76, 60, 0.4);
+            border-color: #e74c3c;
+        }
+
+        .input-answer {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .input-answer input {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 1.1em;
+        }
+
+        .input-answer input:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+
+        .check-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #e94560, #c93b54);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            display: block;
+            background: rgba(46, 204, 113, 0.3);
+            border: 1px solid #2ecc71;
+            color: #2ecc71;
+        }
+
+        .feedback.incorrect {
+            display: block;
+            background: rgba(231, 76, 60, 0.3);
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+        }
+
+        .order-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .order-box {
+            width: 80px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .order-box:hover {
+            border-color: #e94560;
+        }
+
+        .order-symbol {
+            font-size: 1.5em;
+            color: #e94560;
+        }
+
+        .triangle-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .triangle-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .triangle-btn.selected {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.3);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-line {
+            width: 30px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        /* Point highlight animation */
+        .point-highlight {
+            animation: pointPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pointPulse {
+            0%, 100% { r: 6; opacity: 1; }
+            50% { r: 10; opacity: 0.7; }
+        }
+
+        .score-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 2px solid #e94560;
+            z-index: 100;
+        }
+
+        .score-label {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .score-value {
+            color: #e94560;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .formulas {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: #4ecdc4;
+        }
+    </style>
+</head>
+<body>
+    <div class="score-container">
+        <div class="score-label">ניקוד</div>
+        <div class="score-value"><span id="score">0</span>/8</div>
+    </div>
+
+    <div class="container">
+        <h1>שאלה מסכמת: הפונקציה הקווית</h1>
+        <p class="subtitle">עמוד 6 - חופשת חנוכה תשפ"ה</p>
+
+        <!-- Graph Section -->
+        <div class="graph-container">
+            <svg id="graph" width="600" height="500" viewBox="-150 -50 350 300">
+                <!-- Grid -->
+                <defs>
+                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+                    </pattern>
+                </defs>
+                <rect x="-150" y="-50" width="350" height="300" fill="url(#grid)"/>
+
+                <!-- Axes -->
+                <line x1="-130" y1="200" x2="180" y2="200" stroke="#666" stroke-width="2"/>
+                <line x1="0" y1="-30" x2="0" y2="240" stroke="#666" stroke-width="2"/>
+
+                <!-- Axis labels -->
+                <text x="175" y="215" fill="#888" font-size="12">x</text>
+                <text x="10" y="-20" fill="#888" font-size="12">y</text>
+
+                <!-- Tick marks and labels -->
+                <g fill="#888" font-size="10">
+                    <!-- X axis -->
+                    <line x1="40" y1="195" x2="40" y2="205" stroke="#666"/>
+                    <text x="36" y="218">2</text>
+                    <line x1="80" y1="195" x2="80" y2="205" stroke="#666"/>
+                    <text x="76" y="218">4</text>
+                    <line x1="120" y1="195" x2="120" y2="205" stroke="#666"/>
+                    <text x="116" y="218">6</text>
+                    <line x1="-40" y1="195" x2="-40" y2="205" stroke="#666"/>
+                    <text x="-48" y="218">-2</text>
+                    <line x1="-80" y1="195" x2="-80" y2="205" stroke="#666"/>
+                    <text x="-88" y="218">-4</text>
+
+                    <!-- Y axis -->
+                    <line x1="-5" y1="80" x2="5" y2="80" stroke="#666"/>
+                    <text x="-20" y="84">6</text>
+                    <line x1="-5" y1="-40" x2="5" y2="-40" stroke="#666"/>
+                    <text x="-25" y="-36">12</text>
+                    <line x1="-5" y1="140" x2="5" y2="140" stroke="#666"/>
+                    <text x="-20" y="144">3</text>
+                    <line x1="-5" y1="320" x2="5" y2="320" stroke="#666"/>
+                    <text x="-25" y="324">-6</text>
+                </g>
+
+                <!-- Function g(x) = -3x + 12 -->
+                <line id="lineG" x1="-50" y1="-190" x2="100" y2="260" stroke="#e94560" stroke-width="3" stroke-linecap="round"/>
+
+                <!-- Function f(x) = 3x -->
+                <line id="lineF" x1="-60" y1="380" x2="100" y2="-100" stroke="#4ecdc4" stroke-width="3" stroke-linecap="round"/>
+
+                <!-- Points -->
+                <!-- O (origin) -->
+                <circle id="pointO" cx="0" cy="200" r="6" fill="#fff"/>
+                <text x="10" y="215" fill="#fff" font-size="12" font-weight="bold">O</text>
+
+                <!-- D(0, 12) -->
+                <circle id="pointD" cx="0" cy="-40" r="6" fill="#e94560"/>
+                <text x="10" y="-35" fill="#e94560" font-size="12" font-weight="bold">D(0,12)</text>
+
+                <!-- C(4, 0) -->
+                <circle id="pointC" cx="80" cy="200" r="6" fill="#e94560"/>
+                <text x="85" y="195" fill="#e94560" font-size="12" font-weight="bold">C(4,0)</text>
+
+                <!-- A/B(2, 6) - intersection point -->
+                <circle id="pointA" cx="40" cy="80" r="6" fill="#f39c12"/>
+                <text x="50" y="75" fill="#f39c12" font-size="12" font-weight="bold">A=B(2,6)</text>
+
+                <!-- E(-2, -6) -->
+                <circle id="pointE" cx="-40" cy="320" r="6" fill="#4ecdc4"/>
+                <text x="-35" y="340" fill="#4ecdc4" font-size="12" font-weight="bold">E(-2,-6)</text>
+            </svg>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #4ecdc4;"></div>
+                    <span>f(x) = 3x</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: #e94560;"></div>
+                    <span>g(x) = -3x + 12</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Section -->
+        <div class="questions-container">
+
+            <!-- Question א -->
+            <div class="question-card" id="q1">
+                <div class="question-title">א. מצאו את הפונקציה f(x)</div>
+                <div class="question-text">
+                    f(x) עוברת דרך ראשית הצירים O(0,0).
+                </div>
+                <div class="options">
+                    <div class="option" onclick="checkAnswer(1, 'f(x) = 3x', this)">f(x) = 3x</div>
+                    <div class="option" onclick="checkAnswer(1, 'f(x) = -3x', this)">f(x) = -3x</div>
+                    <div class="option" onclick="checkAnswer(1, 'f(x) = 2x', this)">f(x) = 2x</div>
+                    <div class="option" onclick="checkAnswer(1, 'f(x) = x + 3', this)">f(x) = x + 3</div>
+                </div>
+                <div class="feedback" id="feedback1"></div>
+            </div>
+
+            <!-- Question ב -->
+            <div class="question-card" id="q2">
+                <div class="question-title">ב. מצאו את שיעור ה-x של הנקודה B</div>
+                <div class="question-text">
+                    נתון ששיעור ה-y של הנקודה B הוא 6. B נמצאת על g(x).
+                </div>
+                <div class="options">
+                    <div class="option" onclick="checkAnswer(2, '2', this)">x = 2</div>
+                    <div class="option" onclick="checkAnswer(2, '3', this)">x = 3</div>
+                    <div class="option" onclick="checkAnswer(2, '4', this)">x = 4</div>
+                    <div class="option" onclick="checkAnswer(2, '6', this)">x = 6</div>
+                </div>
+                <div class="feedback" id="feedback2"></div>
+            </div>
+
+            <!-- Question ג -->
+            <div class="question-card" id="q3">
+                <div class="question-title">ג. מצאו את הפונקציה g(x)</div>
+                <div class="question-text">
+                    g(x) עוברת דרך D(0,12) ו-C(4,0).
+                </div>
+                <div class="options">
+                    <div class="option" onclick="checkAnswer(3, 'g(x) = -3x + 12', this)">g(x) = -3x + 12</div>
+                    <div class="option" onclick="checkAnswer(3, 'g(x) = 3x + 12', this)">g(x) = 3x + 12</div>
+                    <div class="option" onclick="checkAnswer(3, 'g(x) = -3x - 12', this)">g(x) = -3x - 12</div>
+                    <div class="option" onclick="checkAnswer(3, 'g(x) = 3x - 12', this)">g(x) = 3x - 12</div>
+                </div>
+                <div class="feedback" id="feedback3"></div>
+            </div>
+
+            <!-- Question ד -->
+            <div class="question-card" id="q4">
+                <div class="question-title">ד. מצאו את שיעורי הנקודה E</div>
+                <div class="question-text">
+                    E נמצאת על f(x).
+                </div>
+                <div class="options">
+                    <div class="option" onclick="checkAnswer(4, '(-2, -6)', this)">E(-2, -6)</div>
+                    <div class="option" onclick="checkAnswer(4, '(2, 6)', this)">E(2, 6)</div>
+                    <div class="option" onclick="checkAnswer(4, '(-3, -9)', this)">E(-3, -9)</div>
+                    <div class="option" onclick="checkAnswer(4, '(4, 12)', this)">E(4, 12)</div>
+                </div>
+                <div class="feedback" id="feedback4"></div>
+            </div>
+
+            <!-- Question ה - True/False -->
+            <div class="question-card" id="q5">
+                <div class="question-title">ה. טענות נכון/לא נכון</div>
+
+                <div class="true-false-container">
+                    <div class="statement">1. אורך הקטע DE הוא 10 יח'</div>
+                    <div class="tf-buttons">
+                        <button class="tf-btn" onclick="checkTF(1, true, this)">נכון</button>
+                        <button class="tf-btn" onclick="checkTF(1, false, this)">לא נכון</button>
+                    </div>
+                    <div class="feedback" id="tf-feedback1"></div>
+                </div>
+
+                <div class="true-false-container">
+                    <div class="statement">2. שטח המשולש △ABC הוא 30 יח"ר</div>
+                    <div class="tf-buttons">
+                        <button class="tf-btn" onclick="checkTF(2, true, this)">נכון</button>
+                        <button class="tf-btn" onclick="checkTF(2, false, this)">לא נכון</button>
+                    </div>
+                    <div class="feedback" id="tf-feedback2"></div>
+                </div>
+
+                <div class="true-false-container">
+                    <div class="statement">3. f(3) &lt; g(1)</div>
+                    <div class="tf-buttons">
+                        <button class="tf-btn" onclick="checkTF(3, true, this)">נכון</button>
+                        <button class="tf-btn" onclick="checkTF(3, false, this)">לא נכון</button>
+                    </div>
+                    <div class="feedback" id="tf-feedback3"></div>
+                </div>
+            </div>
+
+            <!-- Question ו -->
+            <div class="question-card" id="q6">
+                <div class="question-title">ו. משוואות הקטעים CE ו-AD</div>
+
+                <div class="question-text">1. משוואת הקטע CE:</div>
+                <div class="options" style="margin-bottom: 20px;">
+                    <div class="option" onclick="checkSegment(1, 'y = x - 4', this)">y = x - 4</div>
+                    <div class="option" onclick="checkSegment(1, 'y = -x + 4', this)">y = -x + 4</div>
+                    <div class="option" onclick="checkSegment(1, 'y = 2x - 8', this)">y = 2x - 8</div>
+                    <div class="option" onclick="checkSegment(1, 'y = x + 4', this)">y = x + 4</div>
+                </div>
+                <div class="feedback" id="seg-feedback1"></div>
+
+                <div class="question-text">2. משוואת הקטע AD:</div>
+                <div class="options">
+                    <div class="option" onclick="checkSegment(2, 'y = -3x + 12', this)">y = -3x + 12</div>
+                    <div class="option" onclick="checkSegment(2, 'y = 3x + 12', this)">y = 3x + 12</div>
+                    <div class="option" onclick="checkSegment(2, 'y = -3x - 12', this)">y = -3x - 12</div>
+                    <div class="option" onclick="checkSegment(2, 'y = 3x - 6', this)">y = 3x - 6</div>
+                </div>
+                <div class="feedback" id="seg-feedback2"></div>
+            </div>
+
+            <!-- Question ז -->
+            <div class="question-card" id="q7">
+                <div class="question-title">ז. סדר שטחי המשולשים לפי גודלם</div>
+                <div class="question-text">
+                    סדרו את המשולשים ΔCEO, ΔBDE, ו-ΔADE מהקטן לגדול:
+                </div>
+                <div class="formulas">
+                    שטח CEO = 12 יח"ר | שטח BDE = 24 יח"ר | שטח ADE = 24 יח"ר
+                </div>
+                <div class="options">
+                    <div class="option" onclick="checkAnswer(7, 'CEO < BDE = ADE', this)">CEO &lt; BDE = ADE</div>
+                    <div class="option" onclick="checkAnswer(7, 'BDE < CEO < ADE', this)">BDE &lt; CEO &lt; ADE</div>
+                    <div class="option" onclick="checkAnswer(7, 'ADE < CEO < BDE', this)">ADE &lt; CEO &lt; BDE</div>
+                    <div class="option" onclick="checkAnswer(7, 'CEO = BDE = ADE', this)">CEO = BDE = ADE</div>
+                </div>
+                <div class="feedback" id="feedback7"></div>
+            </div>
+
+            <!-- Question ח -->
+            <div class="question-card" id="q8">
+                <div class="question-title">ח. משוואות ישרים נוספים</div>
+
+                <div class="question-text">1. משוואת הישר העובר דרך B ומקביל לציר ה-x:</div>
+                <div class="options" style="margin-bottom: 20px;">
+                    <div class="option" onclick="checkLine(1, 'y = 6', this)">y = 6</div>
+                    <div class="option" onclick="checkLine(1, 'x = 6', this)">x = 6</div>
+                    <div class="option" onclick="checkLine(1, 'y = 2', this)">y = 2</div>
+                    <div class="option" onclick="checkLine(1, 'x = 2', this)">x = 2</div>
+                </div>
+                <div class="feedback" id="line-feedback1"></div>
+
+                <div class="question-text">2. משוואת הישר העובר דרך C ומקביל לציר ה-y:</div>
+                <div class="options">
+                    <div class="option" onclick="checkLine(2, 'x = 4', this)">x = 4</div>
+                    <div class="option" onclick="checkLine(2, 'y = 4', this)">y = 4</div>
+                    <div class="option" onclick="checkLine(2, 'x = 0', this)">x = 0</div>
+                    <div class="option" onclick="checkLine(2, 'y = 0', this)">y = 0</div>
+                </div>
+                <div class="feedback" id="line-feedback2"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let answered = {
+            1: false, 2: false, 3: false, 4: false, 7: false,
+            tf1: false, tf2: false, tf3: false,
+            seg1: false, seg2: false,
+            line1: false, line2: false
+        };
+
+        const correctAnswers = {
+            1: 'f(x) = 3x',
+            2: '2',
+            3: 'g(x) = -3x + 12',
+            4: '(-2, -6)',
+            7: 'CEO < BDE = ADE'
+        };
+
+        const tfAnswers = {
+            1: false, // DE is NOT 10
+            2: false, // Area is NOT 30
+            3: false  // f(3) = g(1), not <
+        };
+
+        const segAnswers = {
+            1: 'y = x - 4',
+            2: 'y = -3x + 12'
+        };
+
+        const lineAnswers = {
+            1: 'y = 6',
+            2: 'x = 4'
+        };
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+
+        function highlightPoint(pointId) {
+            const point = document.getElementById(pointId);
+            if (point) {
+                point.classList.add('point-highlight');
+                setTimeout(() => point.classList.remove('point-highlight'), 3000);
+            }
+        }
+
+        function checkAnswer(q, answer, element) {
+            if (answered[q]) return;
+            answered[q] = true;
+
+            const feedback = document.getElementById('feedback' + q);
+            const isCorrect = answer === correctAnswers[q];
+
+            if (isCorrect) {
+                element.classList.add('correct');
+                feedback.textContent = 'נכון! תשובה מצוינת!';
+                feedback.className = 'feedback correct';
+                score++;
+                updateScore();
+
+                // Highlight relevant point
+                if (q === 1) highlightPoint('lineF');
+                if (q === 2) highlightPoint('pointA');
+                if (q === 3) highlightPoint('lineG');
+                if (q === 4) highlightPoint('pointE');
+            } else {
+                element.classList.add('incorrect');
+                feedback.textContent = 'לא נכון. התשובה הנכונה: ' + correctAnswers[q];
+                feedback.className = 'feedback incorrect';
+            }
+
+            // Disable other options
+            const siblings = element.parentElement.querySelectorAll('.option');
+            siblings.forEach(sib => {
+                if (sib !== element) sib.style.pointerEvents = 'none';
+            });
+        }
+
+        function checkTF(q, answer, element) {
+            if (answered['tf' + q]) return;
+            answered['tf' + q] = true;
+
+            const feedback = document.getElementById('tf-feedback' + q);
+            const isCorrect = answer === tfAnswers[q];
+
+            element.classList.add('selected');
+
+            if (isCorrect) {
+                element.classList.add('correct-answer');
+                feedback.textContent = 'נכון!';
+                feedback.className = 'feedback correct';
+                score++;
+                updateScore();
+            } else {
+                element.classList.add('wrong-answer');
+                const correctText = tfAnswers[q] ? 'נכון' : 'לא נכון';
+                feedback.textContent = 'לא נכון. התשובה הנכונה: ' + correctText;
+                feedback.className = 'feedback incorrect';
+            }
+
+            // Disable buttons
+            const siblings = element.parentElement.querySelectorAll('.tf-btn');
+            siblings.forEach(sib => sib.style.pointerEvents = 'none');
+        }
+
+        function checkSegment(q, answer, element) {
+            if (answered['seg' + q]) return;
+            answered['seg' + q] = true;
+
+            const feedback = document.getElementById('seg-feedback' + q);
+            const isCorrect = answer === segAnswers[q];
+
+            if (isCorrect) {
+                element.classList.add('correct');
+                feedback.textContent = 'נכון!';
+                feedback.className = 'feedback correct';
+                score++;
+                updateScore();
+            } else {
+                element.classList.add('incorrect');
+                feedback.textContent = 'לא נכון. התשובה הנכונה: ' + segAnswers[q];
+                feedback.className = 'feedback incorrect';
+            }
+
+            // Disable options
+            const siblings = element.parentElement.querySelectorAll('.option');
+            siblings.forEach(sib => {
+                if (sib !== element) sib.style.pointerEvents = 'none';
+            });
+        }
+
+        function checkLine(q, answer, element) {
+            if (answered['line' + q]) return;
+            answered['line' + q] = true;
+
+            const feedback = document.getElementById('line-feedback' + q);
+            const isCorrect = answer === lineAnswers[q];
+
+            if (isCorrect) {
+                element.classList.add('correct');
+                feedback.textContent = 'נכון!';
+                feedback.className = 'feedback correct';
+                score++;
+                updateScore();
+            } else {
+                element.classList.add('incorrect');
+                feedback.textContent = 'לא נכון. התשובה הנכונה: ' + lineAnswers[q];
+                feedback.className = 'feedback incorrect';
+            }
+
+            // Disable options
+            const siblings = element.parentElement.querySelectorAll('.option');
+            siblings.forEach(sib => {
+                if (sib !== element) sib.style.pointerEvents = 'none';
+            });
+        }
+
+        // Animation for graph lines
+        function animateGraph() {
+            const lineF = document.getElementById('lineF');
+            const lineG = document.getElementById('lineG');
+
+            lineF.style.strokeDasharray = '500';
+            lineF.style.strokeDashoffset = '500';
+            lineG.style.strokeDasharray = '500';
+            lineG.style.strokeDashoffset = '500';
+
+            setTimeout(() => {
+                lineF.style.transition = 'stroke-dashoffset 1.5s ease-out';
+                lineF.style.strokeDashoffset = '0';
+            }, 300);
+
+            setTimeout(() => {
+                lineG.style.transition = 'stroke-dashoffset 1.5s ease-out';
+                lineG.style.strokeDashoffset = '0';
+            }, 800);
+        }
+
+        // Run animation on load
+        window.onload = animateGraph;
+    </script>
+</body>
+</html>

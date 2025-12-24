@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עמוד 5: פונקציות - משאית מחיפה</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .problem-description {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .graph-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .graph-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        svg {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .axis-label {
+            font-size: 14px;
+            fill: #333;
+            font-weight: bold;
+        }
+
+        .grid-line {
+            stroke: #ddd;
+            stroke-width: 1;
+        }
+
+        .main-line {
+            fill: none;
+            stroke: #e74c3c;
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .highlight-segment {
+            fill: none;
+            stroke: #f1c40f;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+        }
+
+        .highlight-segment.active {
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        .highlight-circle {
+            fill: #f1c40f;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .highlight-circle.active {
+            opacity: 0.7;
+        }
+
+        .point {
+            fill: #3498db;
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        .point-label {
+            font-size: 12px;
+            fill: #333;
+        }
+
+        .truck-icon {
+            font-size: 24px;
+        }
+
+        .quiz-section {
+            margin-top: 20px;
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-card.correct {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.2);
+        }
+
+        .question-card.incorrect {
+            border-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.2);
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #3498db;
+        }
+
+        .option.selected {
+            background: rgba(52, 152, 219, 0.3);
+            border-color: #3498db;
+        }
+
+        .option.correct-answer {
+            background: rgba(46, 204, 113, 0.3);
+            border-color: #2ecc71;
+        }
+
+        .option.wrong-answer {
+            background: rgba(231, 76, 60, 0.3);
+            border-color: #e74c3c;
+        }
+
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid #2ecc71;
+        }
+
+        .feedback.incorrect {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid #e74c3c;
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+        }
+
+        .reset-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .function-definition {
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.3), rgba(142, 68, 173, 0.3));
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #9b59b6;
+        }
+
+        .function-definition h3 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .table-display {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .table-display table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        .table-display th, .table-display td {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px;
+        }
+
+        .table-display th {
+            background: rgba(52, 152, 219, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>פונקציות - משאית מחיפה</h1>
+
+        <div class="problem-description">
+            <p>משאית יצאה מחיפה. במהלך הנסיעה עצרה פעמיים.</p>
+            <p>הגרף שלפניכם מתאר את המרחק מחיפה בהתאם לזמן שעבר מתחילת הנסיעה.</p>
+        </div>
+
+        <div class="graph-container">
+            <h2 class="graph-title">גרף המרחק מחיפה כפונקציה של הזמן</h2>
+            <svg id="graph" viewBox="0 0 700 450" width="100%" height="400">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+                    </marker>
+                </defs>
+
+                <!-- Grid lines -->
+                <g class="grid">
+                    <line x1="80" y1="350" x2="650" y2="350" class="grid-line" />
+                    <line x1="80" y1="300" x2="650" y2="300" class="grid-line" />
+                    <line x1="80" y1="250" x2="650" y2="250" class="grid-line" />
+                    <line x1="80" y1="200" x2="650" y2="200" class="grid-line" />
+                    <line x1="80" y1="150" x2="650" y2="150" class="grid-line" />
+                    <line x1="80" y1="100" x2="650" y2="100" class="grid-line" />
+                    <line x1="80" y1="50" x2="650" y2="50" class="grid-line" />
+
+                    <line x1="160" y1="50" x2="160" y2="350" class="grid-line" />
+                    <line x1="240" y1="50" x2="240" y2="350" class="grid-line" />
+                    <line x1="320" y1="50" x2="320" y2="350" class="grid-line" />
+                    <line x1="400" y1="50" x2="400" y2="350" class="grid-line" />
+                    <line x1="480" y1="50" x2="480" y2="350" class="grid-line" />
+                    <line x1="560" y1="50" x2="560" y2="350" class="grid-line" />
+                    <line x1="640" y1="50" x2="640" y2="350" class="grid-line" />
+                </g>
+
+                <!-- Axes -->
+                <line x1="80" y1="350" x2="660" y2="350" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+                <line x1="80" y1="350" x2="80" y2="40" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)" />
+
+                <!-- X-axis labels -->
+                <text x="80" y="380" class="axis-label" text-anchor="middle">0</text>
+                <text x="160" y="380" class="axis-label" text-anchor="middle">1</text>
+                <text x="240" y="380" class="axis-label" text-anchor="middle">2</text>
+                <text x="320" y="380" class="axis-label" text-anchor="middle">3</text>
+                <text x="400" y="380" class="axis-label" text-anchor="middle">4</text>
+                <text x="480" y="380" class="axis-label" text-anchor="middle">5</text>
+                <text x="560" y="380" class="axis-label" text-anchor="middle">6</text>
+                <text x="640" y="380" class="axis-label" text-anchor="middle">7</text>
+                <text x="360" y="420" class="axis-label" text-anchor="middle">זמן (שעות)</text>
+
+                <!-- Y-axis labels -->
+                <text x="65" y="355" class="axis-label" text-anchor="end">0</text>
+                <text x="65" y="305" class="axis-label" text-anchor="end">50</text>
+                <text x="65" y="255" class="axis-label" text-anchor="end">100</text>
+                <text x="65" y="205" class="axis-label" text-anchor="end">150</text>
+                <text x="65" y="155" class="axis-label" text-anchor="end">200</text>
+                <text x="35" y="200" class="axis-label" text-anchor="middle" transform="rotate(-90, 35, 200)">מרחק מחיפה (ק"מ)</text>
+
+                <!-- Highlight elements -->
+                <polyline id="highlight-stop1" class="highlight-segment" points="240,250 320,250" />
+                <polyline id="highlight-stop2" class="highlight-segment" points="480,150 560,150" />
+                <polyline id="highlight-max" class="highlight-segment" points="400,150 560,150" />
+                <polyline id="highlight-return" class="highlight-segment" points="560,150 640,250" />
+                <polyline id="highlight-all" class="highlight-segment" points="80,350 240,250 320,250 480,150 560,150 640,250" />
+
+                <circle id="highlight-point1" class="highlight-circle" cx="160" cy="300" r="15" />
+                <circle id="highlight-point35" class="highlight-circle" cx="360" cy="200" r="15" />
+                <circle id="highlight-point7" class="highlight-circle" cx="640" cy="250" r="15" />
+
+                <!-- Main graph line: (0,0) -> (2,100) -> (3,100) -> (5,200) -> (6,200) -> (7,100) -->
+                <polyline class="main-line" points="80,350 240,250 320,250 480,150 560,150 640,250" />
+
+                <!-- Key points -->
+                <circle cx="80" cy="350" r="6" class="point" />
+                <circle cx="240" cy="250" r="6" class="point" />
+                <circle cx="320" cy="250" r="6" class="point" />
+                <circle cx="480" cy="150" r="6" class="point" />
+                <circle cx="560" cy="150" r="6" class="point" />
+                <circle cx="640" cy="250" r="6" class="point" />
+
+                <!-- Point labels -->
+                <text x="85" y="370" class="point-label">(0,0)</text>
+                <text x="245" y="270" class="point-label">(2,100)</text>
+                <text x="325" y="270" class="point-label">(3,100)</text>
+                <text x="485" y="140" class="point-label">(5,200)</text>
+                <text x="565" y="140" class="point-label">(6,200)</text>
+                <text x="600" y="270" class="point-label">(7,100)</text>
+
+                <text id="truck" x="640" y="240" class="truck-icon">🚚</text>
+            </svg>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e74c3c;"></div>
+                    <span>מסלול המשאית</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f1c40f;"></div>
+                    <span>הדגשה</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="quiz-section">
+            <!-- שאלה א - השלמת הטבלה -->
+            <div class="question-card" id="q1" data-highlight="table">
+                <div class="question-text">א. השלימו את הטבלה על סמך הגרף הנתון.</div>
+                <div class="table-display">
+                    <table>
+                        <tr>
+                            <th>זמן (שעות) x</th>
+                            <th>מרחק מחיפה (ק"מ) y</th>
+                        </tr>
+                        <tr><td>1</td><td>?</td></tr>
+                        <tr><td>3.5</td><td>?</td></tr>
+                        <tr><td>7</td><td>?</td></tr>
+                        <tr><td>משלכם</td><td>?</td></tr>
+                        <tr><td>משלכם</td><td>?</td></tr>
+                    </table>
+                </div>
+                <div class="options">
+                    <div class="option" data-answer="correct" onclick="selectOption(this, 'q1')">y=50, y=150, y=100</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q1')">y=100, y=150, y=0</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q1')">y=50, y=100, y=200</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q1')">y=25, y=175, y=50</div>
+                </div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- שאלה ב - פרקי זמן שהמשאית לא נסעה -->
+            <div class="question-card" id="q2" data-highlight="stops">
+                <div class="question-text">ב. באילו פרקי זמן לא נסעה המשאית? הסבירו.</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q2')">שעות 1-2 ו-4-5 (כי הגרף עולה לאט)</div>
+                    <div class="option" data-answer="correct" onclick="selectOption(this, 'q2')">שעות 2-3 ו-5-6 (כי הגרף אופקי - המרחק לא משתנה)</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q2')">שעות 6-7 (כי הגרף יורד)</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q2')">שעות 0-1 ו-3-4 (כי המשאית האטה)</div>
+                </div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- שאלה ג - האם חזרה לחיפה -->
+            <div class="question-card" id="q3" data-highlight="return">
+                <div class="question-text">ג. האם חזרה המשאית לחיפה? הסבירו.</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q3')">כן, כי הגרף יורד בסוף</div>
+                    <div class="option" data-answer="correct" onclick="selectOption(this, 'q3')">לא, כי בסוף (x=7) המרחק הוא 100 ק"מ ולא 0</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q3')">כן, כי היא עצרה פעמיים</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q3')">לא ניתן לדעת מהגרף</div>
+                </div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- שאלה ד - מרחק מרבי -->
+            <div class="question-card" id="q4" data-highlight="max">
+                <div class="question-text">ד. מה היה המרחק המרבי שלה מחיפה במהלך הנסיעה?</div>
+                <div class="options">
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q4')">100 ק"מ</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q4')">150 ק"מ</div>
+                    <div class="option" data-answer="correct" onclick="selectOption(this, 'q4')">200 ק"מ</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q4')">250 ק"מ</div>
+                </div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- שאלה ה - שני מרחקים שונים באותו זמן -->
+            <div class="question-card" id="q5" data-highlight="all">
+                <div class="question-text">ה. האם ייתכן שבנקודת זמן מסוימת במהלך הנסיעה הייתה המשאית בשני מרחקים שונים מחיפה?</div>
+                <div class="options">
+                    <div class="option" data-answer="correct" onclick="selectOption(this, 'q5')">לא, כי בכל רגע נתון המשאית יכולה להיות רק במקום אחד</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q5')">כן, כשהיא עצרה</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q5')">כן, כשהיא חזרה לכיוון חיפה</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q5')">תלוי במהירות הנסיעה</div>
+                </div>
+                <div class="feedback"></div>
+            </div>
+
+            <!-- שאלה ו - האם לכל x מתאים y יחיד -->
+            <div class="question-card" id="q6" data-highlight="all">
+                <div class="question-text">ו. האם לפי הגרף הנתון לכל ערך של המשתנה זמן (x) מתאים ערך יחיד של המשתנה מרחק מחיפה (y)? הסבירו.</div>
+                <div class="options">
+                    <div class="option" data-answer="correct" onclick="selectOption(this, 'q6')">כן, לכל ערך x יש ערך y יחיד - זו הגדרת פונקציה</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q6')">לא, כי לפעמים הגרף אופקי</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q6')">לא, כי הגרף גם עולה וגם יורד</div>
+                    <div class="option" data-answer="wrong" onclick="selectOption(this, 'q6')">רק בחלק מהזמנים</div>
+                </div>
+                <div class="feedback"></div>
+            </div>
+        </div>
+
+        <div class="score-display" id="scoreDisplay">
+            ענית על <span id="correctCount">0</span> מתוך <span id="totalCount">6</span> שאלות נכון
+        </div>
+
+        <button class="reset-btn" onclick="resetQuiz()">התחל מחדש</button>
+
+        <div class="function-definition">
+            <h3>הגדרה: מהי פונקציה?</h3>
+            <p>התאמה שבה <strong>לכל ערך של משתנה מסוים מתאים ערך אחד ויחיד</strong> של משתנה אחר נקראת <strong>פונקציה</strong>.</p>
+            <br>
+            <p>לדוגמה, במשימה זו לכל ערך של זמן (x) מתאים ערך יחיד של מרחק (y).</p>
+            <p>כמו כן, שימו לב שניתן להציג את הפונקציה בצורה מילולית, בטבלה ובדרך גרפית.</p>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        let answered = 0;
+
+        const feedbackMessages = {
+            q1: {
+                correct: "נכון! מהגרף: בזמן x=1 המרחק 50 ק\"מ, בזמן x=3.5 המרחק 150 ק\"מ, בזמן x=7 המרחק 100 ק\"מ.",
+                incorrect: "לא נכון. קראו בזהירות מהגרף: x=1 נמצא על הקו מ-(0,0) ל-(2,100) ולכן y=50. x=3.5 נמצא על הקו מ-(3,100) ל-(5,200) ולכן y=150. x=7 הוא סוף הגרף ולכן y=100."
+            },
+            q2: {
+                correct: "נכון! הגרף אופקי בשעות 2-3 ו-5-6. כאשר הגרף אופקי, המרחק לא משתנה - כלומר המשאית לא נעה.",
+                incorrect: "לא נכון. עצירה = קטע אופקי בגרף (המרחק לא משתנה). הקטעים האופקיים הם בשעות 2-3 ו-5-6."
+            },
+            q3: {
+                correct: "נכון! בסוף הנסיעה (x=7) המרחק מחיפה הוא 100 ק\"מ. כדי לחזור לחיפה, הגרף צריך להגיע ל-y=0.",
+                incorrect: "לא נכון. חזרה לחיפה = הגרף מגיע ל-y=0. בסוף הגרף (x=7) הערך הוא y=100, כלומר המשאית נשארה במרחק 100 ק\"מ מחיפה."
+            },
+            q4: {
+                correct: "נכון! הנקודה הגבוהה ביותר בגרף היא y=200 ק\"מ, והיא מושגת בין שעות 5-6.",
+                incorrect: "לא נכון. המרחק המרבי הוא הנקודה הגבוהה ביותר בגרף. הפסגה היא ב-y=200 ק\"מ."
+            },
+            q5: {
+                correct: "נכון! בכל רגע נתון המשאית יכולה להיות רק במקום אחד. לכן לכל ערך של זמן יש ערך יחיד של מרחק.",
+                incorrect: "לא נכון. פיזית, משאית לא יכולה להיות בשני מקומות בו-זמנית. לכל רגע (x) יש מיקום יחיד (y)."
+            },
+            q6: {
+                correct: "נכון! לכל ערך של x מתאים ערך y יחיד - וזו בדיוק ההגדרה של פונקציה. הגרף עובר את \"מבחן הקו האנכי\".",
+                incorrect: "לא נכון. הקשר הוא פונקציה כי לכל זמן (x) מתאים מרחק יחיד (y). קטעים אופקיים או ירידות לא משנים את העובדה שלכל x יש y יחיד."
+            }
+        };
+
+        function highlightGraph(questionId) {
+            // Clear all highlights
+            document.querySelectorAll('.highlight-segment').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.highlight-circle').forEach(el => el.classList.remove('active'));
+
+            const card = document.getElementById(questionId);
+            const highlightType = card.dataset.highlight;
+
+            switch(highlightType) {
+                case 'table':
+                    document.getElementById('highlight-point1').classList.add('active');
+                    document.getElementById('highlight-point35').classList.add('active');
+                    document.getElementById('highlight-point7').classList.add('active');
+                    break;
+                case 'stops':
+                    document.getElementById('highlight-stop1').classList.add('active');
+                    document.getElementById('highlight-stop2').classList.add('active');
+                    break;
+                case 'return':
+                    document.getElementById('highlight-return').classList.add('active');
+                    document.getElementById('highlight-point7').classList.add('active');
+                    break;
+                case 'max':
+                    document.getElementById('highlight-max').classList.add('active');
+                    break;
+                case 'all':
+                    document.getElementById('highlight-all').classList.add('active');
+                    break;
+            }
+        }
+
+        function selectOption(element, questionId) {
+            const card = document.getElementById(questionId);
+            const options = card.querySelectorAll('.option');
+            const feedback = card.querySelector('.feedback');
+
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+                if (opt.dataset.answer === 'correct') {
+                    opt.classList.add('correct-answer');
+                }
+            });
+
+            element.classList.add('selected');
+
+            const isCorrect = element.dataset.answer === 'correct';
+
+            if (isCorrect) {
+                score++;
+                card.classList.add('correct');
+                feedback.textContent = feedbackMessages[questionId].correct;
+                feedback.classList.add('correct', 'show');
+            } else {
+                element.classList.add('wrong-answer');
+                card.classList.add('incorrect');
+                feedback.textContent = feedbackMessages[questionId].incorrect;
+                feedback.classList.add('incorrect', 'show');
+            }
+
+            answered++;
+            updateScore();
+            highlightGraph(questionId);
+        }
+
+        function updateScore() {
+            document.getElementById('correctCount').textContent = score;
+        }
+
+        function resetQuiz() {
+            score = 0;
+            answered = 0;
+
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.classList.remove('correct', 'incorrect');
+            });
+
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected', 'correct-answer', 'wrong-answer', 'disabled');
+            });
+
+            document.querySelectorAll('.feedback').forEach(fb => {
+                fb.classList.remove('correct', 'incorrect', 'show');
+                fb.textContent = '';
+            });
+
+            document.querySelectorAll('.highlight-segment').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.highlight-circle').forEach(el => el.classList.remove('active'));
+
+            updateScore();
+        }
+
+        // Hover effects
+        document.querySelectorAll('.question-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                if (!card.classList.contains('correct') && !card.classList.contains('incorrect')) {
+                    highlightGraph(card.id);
+                }
+            });
+
+            card.addEventListener('mouseleave', () => {
+                if (!card.classList.contains('correct') && !card.classList.contains('incorrect')) {
+                    document.querySelectorAll('.highlight-segment').forEach(el => el.classList.remove('active'));
+                    document.querySelectorAll('.highlight-circle').forEach(el => el.classList.remove('active'));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

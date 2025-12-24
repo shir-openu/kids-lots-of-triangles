@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>שאלה 6 - ניתוח מרחק מחיפה</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #1a1a1a;
+    --panel: #f8f9fa;
+    --border: #dee2e6;
+    --purple: #7c3aed;
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --teal: #14b8a6;
+    --cyan: #06b6d4;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --blue: #3b82f6;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-size: 20px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .title {
+    text-align: center;
+    font-size: 32px;
+    color: var(--ink);
+    margin-bottom: 10px;
+    text-decoration: underline;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 20px;
+    color: var(--purple);
+    margin-bottom: 25px;
+  }
+
+  .problem-statement {
+    background: rgba(124, 58, 237, 0.1);
+    border: 2px solid var(--purple);
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    font-size: 18px;
+    line-height: 1.6;
+  }
+
+  .graphs-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .graph-box {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    flex: 1;
+    min-width: 300px;
+    max-width: 450px;
+  }
+
+  .graph-box h3 {
+    color: var(--purple);
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+
+  .graph-box img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  .exercise {
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .exercise-title {
+    font-size: 22px;
+    color: var(--purple);
+    margin-bottom: 15px;
+    font-weight: bold;
+  }
+
+  .question-text {
+    font-size: 18px;
+    margin-bottom: 15px;
+    line-height: 1.5;
+  }
+
+  .options-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .option {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .option:hover:not(.disabled) {
+    border-color: var(--cyan);
+    background: rgba(6, 182, 212, 0.05);
+  }
+
+  .option.selected {
+    border-color: var(--blue);
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  .option.correct {
+    border-color: var(--green);
+    background: rgba(34, 197, 94, 0.15);
+  }
+
+  .option.wrong {
+    border-color: var(--red);
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .option.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  .option-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--purple);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .option.correct .option-letter {
+    background: var(--green);
+  }
+
+  .option.wrong .option-letter {
+    background: var(--red);
+  }
+
+  .option-text {
+    flex: 1;
+  }
+
+  .check-btn {
+    padding: 12px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    background: var(--cyan);
+    color: white;
+    cursor: pointer;
+    margin-top: 15px;
+    font-weight: bold;
+    display: block;
+  }
+
+  .check-btn:hover:not(:disabled) {
+    background: var(--teal);
+  }
+
+  .check-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  .feedback-box {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 16px;
+    display: none;
+    line-height: 1.5;
+  }
+
+  .feedback-box.show {
+    display: block;
+    animation: fadeIn 0.3s;
+  }
+
+  .feedback-box.correct {
+    background: rgba(34, 197, 94, 0.15);
+    border: 2px solid var(--green);
+    color: #166534;
+  }
+
+  .feedback-box.wrong {
+    background: rgba(239, 68, 68, 0.1);
+    border: 2px solid var(--red);
+    color: #991b1b;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .score-container {
+    background: linear-gradient(135deg, var(--purple), var(--cyan));
+    border-radius: 16px;
+    padding: 25px;
+    text-align: center;
+    color: white;
+    margin-top: 30px;
+  }
+
+  .score-title {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .score-value {
+    font-size: 48px;
+    font-weight: bold;
+  }
+
+  .celebration {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  .confetti {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 2px;
+    animation: fall 3s ease-out forwards;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  .definition-box {
+    background: rgba(245, 158, 11, 0.1);
+    border: 2px solid var(--orange);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+    font-size: 16px;
+  }
+
+  .definition-box strong {
+    color: var(--orange);
+  }
+
+  .highlight {
+    background: rgba(234, 179, 8, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title">שאלה 6 - משאית מחיפה</div>
+  <div class="subtitle">ניתוח גרף מרחק-זמן</div>
+
+  <div class="problem-statement">
+    <strong>משאית יצאה מחיפה. במהלך הנסיעה עצרה פעמיים.</strong><br>
+    הגרף שלפניכם מתאר את המרחק מחיפה בהתאם לזמן שעבר מתחילת הנסיעה.
+  </div>
+
+  <div class="graphs-container">
+    <div class="graph-box">
+      <h3>הגרף</h3>
+      <img src="page_5_q_6_graph.svg" alt="גרף מרחק מחיפה">
+    </div>
+    <div class="graph-box">
+      <h3>הטבלה</h3>
+      <img src="page_5_q_6_table.svg" alt="טבלת ערכים">
+    </div>
+  </div>
+
+  <!-- שאלה ב -->
+  <div class="exercise" id="ex-b">
+    <div class="exercise-title">ב. באילו פרקי זמן לא נסעה המשאית? הסבירו.</div>
+    <div class="question-text">בחרו את התשובה הנכונה:</div>
+    <div class="options-container" id="options-b">
+      <div class="option" onclick="selectOption('b', 0)">
+        <span class="option-letter">1</span>
+        <span class="option-text">בין שעה 0 ל-1 ובין שעה 4 ל-5</span>
+      </div>
+      <div class="option" onclick="selectOption('b', 1)">
+        <span class="option-letter">2</span>
+        <span class="option-text">בין שעה 1 ל-2 ובין שעה 3 ל-3.5 (כי הגרף אופקי - המרחק לא משתנה)</span>
+      </div>
+      <div class="option" onclick="selectOption('b', 2)">
+        <span class="option-letter">3</span>
+        <span class="option-text">בין שעה 5 ל-7 (כי הגרף יורד)</span>
+      </div>
+      <div class="option" onclick="selectOption('b', 3)">
+        <span class="option-letter">4</span>
+        <span class="option-text">המשאית נסעה כל הזמן ללא הפסקה</span>
+      </div>
+    </div>
+    <button class="check-btn" id="btn-b" onclick="checkAnswer('b')">בדוק תשובה</button>
+    <div class="feedback-box" id="feedback-b"></div>
+  </div>
+
+  <!-- שאלה ג -->
+  <div class="exercise" id="ex-c">
+    <div class="exercise-title">ג. האם חזרה המשאית לחיפה? הסבירו.</div>
+    <div class="question-text">בחרו את התשובה הנכונה:</div>
+    <div class="options-container" id="options-c">
+      <div class="option" onclick="selectOption('c', 0)">
+        <span class="option-letter">1</span>
+        <span class="option-text">כן, המשאית חזרה לחיפה כי בזמן x=7 המרחק הוא y=0</span>
+      </div>
+      <div class="option" onclick="selectOption('c', 1)">
+        <span class="option-letter">2</span>
+        <span class="option-text">לא, המשאית לא חזרה כי בסוף היא נשארה במרחק 100 ק"מ</span>
+      </div>
+      <div class="option" onclick="selectOption('c', 2)">
+        <span class="option-letter">3</span>
+        <span class="option-text">לא ניתן לדעת מהגרף</span>
+      </div>
+      <div class="option" onclick="selectOption('c', 3)">
+        <span class="option-letter">4</span>
+        <span class="option-text">כן, כי היא עצרה פעמיים בדרך</span>
+      </div>
+    </div>
+    <button class="check-btn" id="btn-c" onclick="checkAnswer('c')">בדוק תשובה</button>
+    <div class="feedback-box" id="feedback-c"></div>
+  </div>
+
+  <!-- שאלה ד -->
+  <div class="exercise" id="ex-d">
+    <div class="exercise-title">ד. מה היה המרחק המרבי שלה מחיפה במהלך הנסיעה?</div>
+    <div class="question-text">בחרו את התשובה הנכונה:</div>
+    <div class="options-container" id="options-d">
+      <div class="option" onclick="selectOption('d', 0)">
+        <span class="option-letter">1</span>
+        <span class="option-text">100 ק"מ</span>
+      </div>
+      <div class="option" onclick="selectOption('d', 1)">
+        <span class="option-letter">2</span>
+        <span class="option-text">150 ק"מ</span>
+      </div>
+      <div class="option" onclick="selectOption('d', 2)">
+        <span class="option-letter">3</span>
+        <span class="option-text">200 ק"מ</span>
+      </div>
+      <div class="option" onclick="selectOption('d', 3)">
+        <span class="option-letter">4</span>
+        <span class="option-text">250 ק"מ</span>
+      </div>
+    </div>
+    <button class="check-btn" id="btn-d" onclick="checkAnswer('d')">בדוק תשובה</button>
+    <div class="feedback-box" id="feedback-d"></div>
+  </div>
+
+  <!-- שאלה ה -->
+  <div class="exercise" id="ex-e">
+    <div class="exercise-title">ה. האם ייתכן שבשני זמנים שונים היה אותו מרחק מחיפה?</div>
+    <div class="question-text">בחרו את התשובה הנכונה:</div>
+    <div class="options-container" id="options-e">
+      <div class="option" onclick="selectOption('e', 0)">
+        <span class="option-letter">1</span>
+        <span class="option-text">כן, כי בדרך הלוך ובדרך חזור עברה המשאית באותם מרחקים</span>
+      </div>
+      <div class="option" onclick="selectOption('e', 1)">
+        <span class="option-letter">2</span>
+        <span class="option-text">לא, לכל זמן יש מרחק שונה</span>
+      </div>
+      <div class="option" onclick="selectOption('e', 2)">
+        <span class="option-letter">3</span>
+        <span class="option-text">לא, כי זו פונקציה</span>
+      </div>
+      <div class="option" onclick="selectOption('e', 3)">
+        <span class="option-letter">4</span>
+        <span class="option-text">רק בזמן העצירות</span>
+      </div>
+    </div>
+    <button class="check-btn" id="btn-e" onclick="checkAnswer('e')">בדוק תשובה</button>
+    <div class="feedback-box" id="feedback-e"></div>
+  </div>
+
+  <!-- שאלה ו -->
+  <div class="exercise" id="ex-f">
+    <div class="exercise-title">ו. האם y (המרחק) הוא פונקציה חד-חד-ערכית של x (הזמן)?</div>
+    <div class="question-text">בחרו את התשובה הנכונה:</div>
+    <div class="options-container" id="options-f">
+      <div class="option" onclick="selectOption('f', 0)">
+        <span class="option-letter">1</span>
+        <span class="option-text">כן, כי לכל זמן מתאים מרחק יחיד</span>
+      </div>
+      <div class="option" onclick="selectOption('f', 1)">
+        <span class="option-letter">2</span>
+        <span class="option-text">לא, כי יש מרחקים שמתאימים ליותר מזמן אחד (למשל 150 ק"מ בהלוך ובחזור)</span>
+      </div>
+      <div class="option" onclick="selectOption('f', 2)">
+        <span class="option-letter">3</span>
+        <span class="option-text">כן, כי הגרף עולה ויורד</span>
+      </div>
+      <div class="option" onclick="selectOption('f', 3)">
+        <span class="option-letter">4</span>
+        <span class="option-text">לא ניתן לקבוע</span>
+      </div>
+    </div>
+    <button class="check-btn" id="btn-f" onclick="checkAnswer('f')">בדוק תשובה</button>
+    <div class="feedback-box" id="feedback-f"></div>
+
+    <div class="definition-box">
+      <strong>תזכורת:</strong> פונקציה <span class="highlight">חד-חד-ערכית</span> היא פונקציה שבה לכל ערך y מתאים לכל היותר ערך x אחד.
+      במילים אחרות: כל קו אופקי חותך את הגרף לכל היותר בנקודה אחת.
+    </div>
+  </div>
+
+  <div class="score-container" id="score-container" style="display: none;">
+    <div class="score-title">סיימת את כל השאלות!</div>
+    <div class="score-value"><span id="final-score">0</span>/5</div>
+  </div>
+</div>
+
+<div class="celebration" id="celebration"></div>
+
+<script>
+const correctAnswers = {
+  'b': 1,  // בין שעה 1-2 ו-3-3.5 (גרף אופקי)
+  'c': 0,  // כן, חזרה לחיפה (y=0 ב-x=7)
+  'd': 2,  // 200 ק"מ
+  'e': 0,  // כן, בהלוך ובחזור
+  'f': 1   // לא, לא חד-חד-ערכית
+};
+
+const feedbacks = {
+  'b': {
+    correct: '✓ נכון! כאשר הגרף אופקי, המרחק מחיפה לא משתנה - כלומר המשאית עומדת במקום. זה קורה בין שעה 1 ל-2 ובין שעה 3 ל-3.5.',
+    wrong: '✗ לא נכון. חפשו את הקטעים שבהם הגרף אופקי (שטוח) - שם המשאית לא נעה כי המרחק לא משתנה.'
+  },
+  'c': {
+    correct: '✓ נכון! בסוף הנסיעה (בזמן x=7) הגרף מגיע לנקודה y=0, כלומר המשאית חזרה לחיפה.',
+    wrong: '✗ לא נכון. בדקו את הגרף בנקודה x=7 - מה ערך ה-y שם? האם הוא שווה ל-0?'
+  },
+  'd': {
+    correct: '✓ נכון! הנקודה הגבוהה ביותר בגרף היא 200 ק"מ, וזה המרחק המרבי שהמשאית התרחקה מחיפה.',
+    wrong: '✗ לא נכון. המרחק המרבי הוא הנקודה הגבוהה ביותר בגרף (הפסגה).'
+  },
+  'e': {
+    correct: '✓ נכון! כשהמשאית נסעה מחיפה והתרחקה, ואז חזרה - היא עברה באותם מרחקים פעמיים (פעם בהלוך ופעם בחזור).',
+    wrong: '✗ לא נכון. חשבו: כשהמשאית נוסעת הלוך וחזור, האם היא עוברת באותם מקומות יותר מפעם אחת?'
+  },
+  'f': {
+    correct: '✓ נכון! הפונקציה אינה חד-חד-ערכית כי יש ערכי מרחק (y) שמתאימים ליותר מזמן אחד (x). למשל, קו אופקי ב-y=150 חותך את הגרף בשתי נקודות.',
+    wrong: '✗ לא נכון. בפונקציה חד-חד-ערכית, לכל ערך y מתאים לכל היותר ערך x אחד. האם זה המצב כאן?'
+  }
+};
+
+let selectedAnswers = {};
+let score = 0;
+let answeredCount = 0;
+
+function selectOption(question, optionIndex) {
+  const container = document.getElementById('options-' + question);
+  const options = container.querySelectorAll('.option');
+
+  // Check if already answered
+  if (options[0].classList.contains('disabled')) return;
+
+  // Clear previous selection
+  options.forEach(opt => opt.classList.remove('selected'));
+
+  // Select new option
+  options[optionIndex].classList.add('selected');
+  selectedAnswers[question] = optionIndex;
+}
+
+function checkAnswer(question) {
+  if (selectedAnswers[question] === undefined) {
+    alert('אנא בחר תשובה');
+    return;
+  }
+
+  const container = document.getElementById('options-' + question);
+  const options = container.querySelectorAll('.option');
+  const feedback = document.getElementById('feedback-' + question);
+  const btn = document.getElementById('btn-' + question);
+
+  const isCorrect = selectedAnswers[question] === correctAnswers[question];
+
+  // Disable all options
+  options.forEach((opt, i) => {
+    opt.classList.add('disabled');
+    if (i === correctAnswers[question]) {
+      opt.classList.add('correct');
+    } else if (i === selectedAnswers[question] && !isCorrect) {
+      opt.classList.add('wrong');
+    }
+  });
+
+  // Show feedback
+  feedback.textContent = isCorrect ? feedbacks[question].correct : feedbacks[question].wrong;
+  feedback.classList.add('show', isCorrect ? 'correct' : 'wrong');
+
+  // Disable button
+  btn.disabled = true;
+
+  // Update score
+  if (isCorrect) {
+    score++;
+    createConfetti();
+  }
+
+  answeredCount++;
+
+  // Check if all questions answered
+  if (answeredCount === 5) {
+    setTimeout(() => {
+      document.getElementById('final-score').textContent = score;
+      document.getElementById('score-container').style.display = 'block';
+      document.getElementById('score-container').scrollIntoView({ behavior: 'smooth' });
+      if (score === 5) {
+        for (let i = 0; i < 3; i++) {
+          setTimeout(createConfetti, i * 500);
+        }
+      }
+    }, 500);
+  }
+}
+
+function createConfetti() {
+  const c = document.getElementById('celebration');
+  const colors = ['#fde047', '#4ade80', '#2dd4bf', '#a3e635', '#22d3ee', '#f472b6', '#a78bfa'];
+  for (let i = 0; i < 30; i++) {
+    const d = document.createElement('div');
+    d.className = 'confetti';
+    d.style.left = Math.random() * 100 + '%';
+    d.style.background = colors[Math.floor(Math.random() * colors.length)];
+    d.style.animationDelay = Math.random() * 0.5 + 's';
+    c.appendChild(d);
+  }
+  setTimeout(() => { c.innerHTML = ''; }, 3000);
+}
+</script>
+
+</body>
+</html>

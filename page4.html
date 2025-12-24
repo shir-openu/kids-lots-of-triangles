@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עמוד 4: הצעות הגננים - אוריינות גרפית</title>
+    <style>
+        :root {
+            --bg: #0b1220;
+            --ink: #e5e7eb;
+            --panel: #0f172a;
+            --border: #1f2937;
+            --purple: #a78bfa;
+            --green: #22c55e;
+            --orange: #f59e0b;
+            --teal: #11a8a0;
+            --pink: #f472b6;
+            --blue: #3b82f6;
+            --yellow: #fbbf24;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--ink);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--teal);
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .problem-statement {
+            background: var(--panel);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .problem-statement h3 {
+            color: var(--teal);
+            margin-top: 0;
+        }
+
+        .gardener-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .gardener-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px 25px;
+            border-right: 4px solid;
+        }
+
+        .gardener-card.oren {
+            border-right-color: var(--orange);
+        }
+
+        .gardener-card.tomer {
+            border-right-color: var(--teal);
+        }
+
+        .gardener-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 8px;
+        }
+
+        .gardener-card.oren .gardener-name {
+            color: var(--orange);
+        }
+
+        .gardener-card.tomer .gardener-name {
+            color: var(--teal);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .graph-container {
+            background: var(--panel);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .graph-title {
+            text-align: center;
+            color: var(--purple);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .grid-line {
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 0.5;
+        }
+
+        .axis {
+            stroke: var(--ink);
+            stroke-width: 2;
+        }
+
+        .axis-label {
+            fill: #aaa;
+            font-size: 12px;
+        }
+
+        .graph-line {
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            transition: all 0.3s ease;
+        }
+
+        .graph-line.oren {
+            stroke: var(--orange);
+        }
+
+        .graph-line.tomer {
+            stroke: var(--teal);
+        }
+
+        .graph-line.highlight {
+            stroke-width: 6;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .graph-label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .intersection-point {
+            fill: var(--yellow);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .intersection-point.show {
+            opacity: 1;
+        }
+
+        .intersection-lines {
+            stroke: var(--yellow);
+            stroke-width: 1.5;
+            stroke-dasharray: 5, 5;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .intersection-lines.show {
+            opacity: 0.7;
+        }
+
+        .point-17 {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .point-17.show {
+            opacity: 1;
+        }
+
+        .questions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .question-card {
+            background: var(--panel);
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .question-card.correct {
+            border-color: var(--green);
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .question-card.incorrect {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .question-header {
+            color: var(--purple);
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 1.05em;
+            line-height: 1.5;
+        }
+
+        .question-context {
+            background: rgba(167, 139, 250, 0.1);
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-right: 3px solid var(--purple);
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .option {
+            background: #0b1424;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-size: 1em;
+            color: var(--ink);
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: var(--purple);
+            background: rgba(167, 139, 250, 0.15);
+            transform: scale(1.02);
+        }
+
+        .option.correct-answer {
+            background: rgba(34, 197, 94, 0.3);
+            border-color: var(--green);
+        }
+
+        .option.wrong-answer {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: #ef4444;
+        }
+
+        .option.disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+            font-size: 0.95em;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .feedback.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .score-container {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            display: none;
+        }
+
+        .score-container.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .score {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--yellow);
+        }
+
+        .reset-btn {
+            margin-top: 15px;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            background: var(--purple);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #8b5cf6;
+            transform: scale(1.05);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .legend-color.oren {
+            background: var(--orange);
+        }
+
+        .legend-color.tomer {
+            background: var(--teal);
+        }
+
+        /* Confetti */
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            animation: fall 4s ease-out forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(1080deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>הצעות הגננים - אוריינות גרפית</h1>
+
+        <div class="problem-statement">
+            <h3>הבעיה:</h3>
+            <p>אורן ותומר הם גננים. כל אחד מהם פרסם באתר השכונתי הצעת מחיר בעבור ייעוץ וטיפול בגינה.</p>
+            <div class="gardener-info">
+                <div class="gardener-card oren">
+                    <div class="gardener-name">אורן</div>
+                    <div>700 שקלים לייעוץ ועוד 20 שקלים לגינון של כל מ"ר גינה</div>
+                    <div style="color: #aaa; font-size: 0.9em; margin-top: 5px;">y = 700 + 20x</div>
+                </div>
+                <div class="gardener-card tomer">
+                    <div class="gardener-name">תומר</div>
+                    <div>48 שקלים לכל מ"ר גינה (הייעוץ כלול במחיר)</div>
+                    <div style="color: #aaa; font-size: 0.9em; margin-top: 5px;">y = 48x</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="graph-container">
+                <div class="graph-title">גרף המחירים לפי שטח הגינה</div>
+                <svg viewBox="0 0 500 400" id="graph">
+                    <!-- Grid lines -->
+                    <g class="grid">
+                        <line class="grid-line" x1="60" y1="350" x2="480" y2="350"/>
+                        <line class="grid-line" x1="60" y1="300" x2="480" y2="300"/>
+                        <line class="grid-line" x1="60" y1="250" x2="480" y2="250"/>
+                        <line class="grid-line" x1="60" y1="200" x2="480" y2="200"/>
+                        <line class="grid-line" x1="60" y1="150" x2="480" y2="150"/>
+                        <line class="grid-line" x1="60" y1="100" x2="480" y2="100"/>
+                        <line class="grid-line" x1="60" y1="50" x2="480" y2="50"/>
+                        <line class="grid-line" x1="60" y1="50" x2="60" y2="350"/>
+                        <line class="grid-line" x1="144" y1="50" x2="144" y2="350"/>
+                        <line class="grid-line" x1="228" y1="50" x2="228" y2="350"/>
+                        <line class="grid-line" x1="312" y1="50" x2="312" y2="350"/>
+                        <line class="grid-line" x1="396" y1="50" x2="396" y2="350"/>
+                        <line class="grid-line" x1="480" y1="50" x2="480" y2="350"/>
+                    </g>
+
+                    <!-- Axes -->
+                    <line class="axis" x1="60" y1="350" x2="480" y2="350"/>
+                    <line class="axis" x1="60" y1="50" x2="60" y2="350"/>
+
+                    <!-- X axis labels -->
+                    <text class="axis-label" x="60" y="370" text-anchor="middle">0</text>
+                    <text class="axis-label" x="144" y="370" text-anchor="middle">10</text>
+                    <text class="axis-label" x="228" y="370" text-anchor="middle">20</text>
+                    <text class="axis-label" x="312" y="370" text-anchor="middle">30</text>
+                    <text class="axis-label" x="396" y="370" text-anchor="middle">40</text>
+                    <text class="axis-label" x="480" y="370" text-anchor="middle">50</text>
+                    <text class="axis-label" x="270" y="395" text-anchor="middle" fill="#11a8a0">שטח הגינה (מ"ר)</text>
+
+                    <!-- Y axis labels -->
+                    <text class="axis-label" x="50" y="355" text-anchor="end">0</text>
+                    <text class="axis-label" x="50" y="305" text-anchor="end">400</text>
+                    <text class="axis-label" x="50" y="255" text-anchor="end">800</text>
+                    <text class="axis-label" x="50" y="205" text-anchor="end">1200</text>
+                    <text class="axis-label" x="50" y="155" text-anchor="end">1600</text>
+                    <text class="axis-label" x="50" y="105" text-anchor="end">2000</text>
+                    <text class="axis-label" x="25" y="200" text-anchor="middle" transform="rotate(-90, 25, 200)" fill="#11a8a0">מחיר (שקלים)</text>
+
+                    <!-- Intersection helper lines -->
+                    <line class="intersection-lines" id="int-h" x1="60" y1="170" x2="270" y2="170"/>
+                    <line class="intersection-lines" id="int-v" x1="270" y1="170" x2="270" y2="350"/>
+
+                    <!-- Points at x=17 -->
+                    <g class="point-17" id="point17-group">
+                        <line stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="5,5" x1="202.8" y1="350" x2="202.8" y2="194"/>
+                        <circle cx="202.8" cy="227.6" r="6" fill="#11a8a0" stroke="#fff" stroke-width="2"/>
+                        <circle cx="202.8" cy="194" r="6" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
+                        <text x="210" y="223" fill="#11a8a0" font-size="11">816 ש"ח</text>
+                        <text x="210" y="190" fill="#f59e0b" font-size="11">1040 ש"ח</text>
+                        <text x="202.8" y="365" fill="#fbbf24" font-size="11" text-anchor="middle">17</text>
+                    </g>
+
+                    <!-- Graph lines -->
+                    <path class="graph-line oren" id="line-oren" d="M 60 245 L 480 95"/>
+                    <path class="graph-line tomer" id="line-tomer" d="M 60 350 L 410 50"/>
+
+                    <!-- Graph labels -->
+                    <text class="graph-label" x="470" y="85" fill="#f59e0b">I</text>
+                    <text class="graph-label" x="400" y="45" fill="#11a8a0">II</text>
+
+                    <!-- Intersection point (25, 1200) -->
+                    <circle class="intersection-point" id="intersection" cx="270" cy="170" r="8" stroke="#fff" stroke-width="2"/>
+                    <text class="intersection-point" id="int-label" x="285" y="165" fill="#fbbf24" font-size="12">(25, 1200)</text>
+                </svg>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color oren"></span>
+                        <span>גרף I - אורן</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color tomer"></span>
+                        <span>גרף II - תומר</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="questions-container">
+                <!-- Question A -->
+                <div class="question-card" id="q-a" data-question="a">
+                    <div class="question-header">א. איזה גרף, I או II, מתאר את ההצעה של אורן?</div>
+                    <div class="options">
+                        <div class="option" data-answer="1" data-correct="true">גרף I</div>
+                        <div class="option" data-answer="2">גרף II</div>
+                        <div class="option" data-answer="3">שניהם</div>
+                        <div class="option" data-answer="4">אף אחד מהם</div>
+                    </div>
+                    <div class="feedback" id="feedback-a"></div>
+                </div>
+
+                <!-- Question B1 -->
+                <div class="question-card" id="q-b1" data-question="b1">
+                    <div class="question-header">ב. (1) מהו שטח הגינה שבעבורו הגננים אורן ותומר גובים את אותו המחיר?</div>
+                    <div class="options">
+                        <div class="option" data-answer="20">20 מ"ר</div>
+                        <div class="option" data-answer="25" data-correct="true">25 מ"ר</div>
+                        <div class="option" data-answer="30">30 מ"ר</div>
+                        <div class="option" data-answer="35">35 מ"ר</div>
+                    </div>
+                    <div class="feedback" id="feedback-b1"></div>
+                </div>
+
+                <!-- Question B2 -->
+                <div class="question-card" id="q-b2" data-question="b2">
+                    <div class="question-header">ב. (2) מהו המחיר בעבור השטח הזה?</div>
+                    <div class="options">
+                        <div class="option" data-answer="1000">1,000 שקלים</div>
+                        <div class="option" data-answer="1100">1,100 שקלים</div>
+                        <div class="option" data-answer="1200" data-correct="true">1,200 שקלים</div>
+                        <div class="option" data-answer="1400">1,400 שקלים</div>
+                    </div>
+                    <div class="feedback" id="feedback-b2"></div>
+                </div>
+
+                <!-- Question C - Context -->
+                <div class="question-context">
+                    <strong style="color: #a78bfa;">ג.</strong> למשפחת כהן יש גינה ששטחה 17 מ"ר. משפחת כהן בחרה בגנן שהצעת המחיר שלו הייתה נמוכה יותר.
+                </div>
+
+                <!-- Question C1 -->
+                <div class="question-card" id="q-c1" data-question="c1">
+                    <div class="question-header">(1) במי משני הגננים בחרה משפחת כהן?</div>
+                    <div class="options">
+                        <div class="option" data-answer="oren">אורן</div>
+                        <div class="option" data-answer="tomer" data-correct="true">תומר</div>
+                        <div class="option" data-answer="same">אותו מחיר לשניהם</div>
+                        <div class="option" data-answer="unknown">אי אפשר לדעת</div>
+                    </div>
+                    <div class="feedback" id="feedback-c1"></div>
+                </div>
+
+                <!-- Question C2 -->
+                <div class="question-card" id="q-c2" data-question="c2">
+                    <div class="question-header">(2) מצאו בכמה שקלים הייתה גבוהה הצעת המחיר של הגנן האחר מן המחיר ששילמה משפחת כהן.</div>
+                    <div class="options">
+                        <div class="option" data-answer="124">124 שקלים</div>
+                        <div class="option" data-answer="200">200 שקלים</div>
+                        <div class="option" data-answer="224" data-correct="true">224 שקלים</div>
+                        <div class="option" data-answer="324">324 שקלים</div>
+                    </div>
+                    <div class="feedback" id="feedback-c2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="score-container" id="score-container">
+            <div style="color: var(--green); font-size: 1.3em;">כל הכבוד! סיימת את כל השאלות</div>
+            <div class="score" id="final-score">0/5</div>
+            <button class="reset-btn" onclick="resetQuiz()">התחל מחדש</button>
+        </div>
+    </div>
+
+    <div class="celebration" id="celebration"></div>
+
+    <script>
+        let answered = 0;
+        let correct = 0;
+        const totalQuestions = 5;
+        const completedQuestions = new Set();
+
+        // Short explanations for each option
+        const optionFeedback = {
+            a: {
+                '1': { correct: true, text: "נכון! גרף I מתחיל ב-700 ועולה לאט" },
+                '2': { correct: false, text: "לא. גרף II מתחיל מ-0 - זה תומר" },
+                '3': { correct: false, text: "לא. כל גרף מתאר גנן אחד" },
+                '4': { correct: false, text: "לא. גרף I מתאר את אורן" }
+            },
+            b1: {
+                '20': { correct: false, text: "לא. ב-20 מ\"ר הגרפים לא נחתכים" },
+                '25': { correct: true, text: "נכון! נקודת החיתוך: 700+20x=48x → x=25" },
+                '30': { correct: false, text: "לא. ב-30 מ\"ר המחירים שונים" },
+                '35': { correct: false, text: "לא. ב-35 מ\"ר כבר עברנו את החיתוך" }
+            },
+            b2: {
+                '1000': { correct: false, text: "לא. חשב: 48×25 או 700+20×25" },
+                '1100': { correct: false, text: "לא. המחיר גבוה יותר" },
+                '1200': { correct: true, text: "נכון! 48×25 = 1,200 שקלים" },
+                '1400': { correct: false, text: "לא. זה יותר מדי" }
+            },
+            c1: {
+                'oren': { correct: false, text: "לא. אורן גובה 1,040 ש\"ח - יקר יותר!" },
+                'tomer': { correct: true, text: "נכון! תומר גובה רק 816 ש\"ח" },
+                'same': { correct: false, text: "לא. 816 ≠ 1,040" },
+                'unknown': { correct: false, text: "לא. אפשר לחשב מהגרף" }
+            },
+            c2: {
+                '124': { correct: false, text: "לא. חשב: 1,040 - 816" },
+                '200': { correct: false, text: "לא. ההפרש גדול יותר" },
+                '224': { correct: true, text: "נכון! 1,040 - 816 = 224" },
+                '324': { correct: false, text: "לא. זה יותר מדי" }
+            }
+        };
+
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                const card = this.closest('.question-card');
+                const question = card.dataset.question;
+
+                // Skip if already completed
+                if (completedQuestions.has(question)) return;
+
+                const answer = this.dataset.answer;
+                const feedbackData = optionFeedback[question][answer];
+                const feedback = document.getElementById('feedback-' + question);
+
+                // Clear previous wrong styling
+                card.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('wrong-answer');
+                });
+                card.classList.remove('incorrect');
+
+                if (feedbackData.correct) {
+                    // Correct answer
+                    completedQuestions.add(question);
+                    this.classList.add('correct-answer');
+                    card.classList.add('correct');
+                    feedback.textContent = feedbackData.text;
+                    feedback.classList.remove('incorrect');
+                    feedback.classList.add('correct', 'show');
+                    correct++;
+                    createConfetti();
+
+                    // Disable all options
+                    card.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.add('disabled');
+                    });
+
+                    triggerAnimation(question, true);
+
+                    if (completedQuestions.size === totalQuestions) {
+                        setTimeout(showFinalScore, 1000);
+                    }
+                } else {
+                    // Wrong answer - allow retry
+                    this.classList.add('wrong-answer');
+                    card.classList.add('incorrect');
+                    feedback.textContent = feedbackData.text + " נסה שוב!";
+                    feedback.classList.remove('correct');
+                    feedback.classList.add('incorrect', 'show');
+
+                    // Remove wrong styling after delay
+                    setTimeout(() => {
+                        this.classList.remove('wrong-answer');
+                        card.classList.remove('incorrect');
+                    }, 1500);
+                }
+            });
+        });
+
+        function triggerAnimation(question, isCorrect) {
+            const lineOren = document.getElementById('line-oren');
+            const lineTomer = document.getElementById('line-tomer');
+            const intersection = document.getElementById('intersection');
+            const intLabel = document.getElementById('int-label');
+            const intH = document.getElementById('int-h');
+            const intV = document.getElementById('int-v');
+            const point17 = document.getElementById('point17-group');
+
+            switch(question) {
+                case 'a':
+                    lineOren.classList.add('highlight');
+                    setTimeout(() => lineOren.classList.remove('highlight'), 2000);
+                    break;
+                case 'b1':
+                case 'b2':
+                    intersection.classList.add('show');
+                    intLabel.classList.add('show');
+                    intH.classList.add('show');
+                    intV.classList.add('show');
+                    break;
+                case 'c1':
+                case 'c2':
+                    point17.classList.add('show');
+                    break;
+            }
+        }
+
+        function showFinalScore() {
+            const scoreContainer = document.getElementById('score-container');
+            const finalScore = document.getElementById('final-score');
+            finalScore.textContent = correct + '/' + totalQuestions;
+            scoreContainer.classList.add('show');
+            createConfetti();
+            setTimeout(createConfetti, 500);
+        }
+
+        function resetQuiz() {
+            answered = 0;
+            correct = 0;
+            completedQuestions.clear();
+
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.classList.remove('correct', 'incorrect');
+            });
+
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('disabled', 'correct-answer', 'wrong-answer');
+            });
+
+            document.querySelectorAll('.feedback').forEach(fb => {
+                fb.classList.remove('show', 'correct', 'incorrect');
+                fb.textContent = '';
+            });
+
+            document.getElementById('intersection').classList.remove('show');
+            document.getElementById('int-label').classList.remove('show');
+            document.getElementById('int-h').classList.remove('show');
+            document.getElementById('int-v').classList.remove('show');
+            document.getElementById('point17-group').classList.remove('show');
+
+            document.getElementById('score-container').classList.remove('show');
+        }
+
+        function createConfetti() {
+            const celebration = document.getElementById('celebration');
+            const colors = ['#a78bfa', '#22c55e', '#f59e0b', '#3b82f6', '#f472b6', '#11a8a0', '#fbbf24'];
+
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 1 + 's';
+                celebration.appendChild(confetti);
+            }
+
+            setTimeout(() => { celebration.innerHTML = ''; }, 5000);
+        }
+    </script>
+</body>
+</html>
